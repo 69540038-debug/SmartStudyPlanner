@@ -216,28 +216,6 @@ def theme_styles(dark):
     .deadline-banner strong {{display:block;font-size:1.12rem;color:#292F36 !important;}}
     .deadline-banner span {{display:block;font-size:.86rem;color:#674D44 !important;margin-top:3px;}}
     .deadline-bell {{font-size:1.65rem;}}
-    /* Pastel illustrated dashboard: keep native Streamlit controls functional */
-    [data-testid='stAppViewContainer'] {{background:{'#131D32' if dark else '#F6F9FF'};}}
-    [data-testid='stSidebar'] {{background:{'#17233C' if dark else '#EAF2FF'};border-right:1px solid {line};}}
-    [data-testid='stSidebar'] * {{color:{'#F5FAFF' if dark else '#29426C'} !important;}}
-    [data-testid='stSidebar'] [role='radiogroup'] label:hover {{background:{'#293C5B' if dark else '#D3E5FF'};}}
-    .dream-banner {{height:210px;background:linear-gradient(110deg,{ '#27385C' if dark else '#B9DFFF'} 0%,{'#384C74' if dark else '#D8ECFF'} 62%,{'#4D5978' if dark else '#FFE5E8'} 100%);border:2px solid {'#455B86' if dark else '#FFFFFF'};box-shadow:0 12px 26px #6B90B72A;}}
-    .dream-banner .quote-slide {{width:66%;padding:38px 32px;}}
-    .dream-banner .quote-slide strong {{color:{'#FFFFFF' if dark else '#254A7D'};font-size:clamp(1.08rem,2.4vw,1.65rem);}}
-    .dream-banner .quote-slide p {{color:{'#E8F2FF' if dark else '#466A91'} !important;font-size:.95rem;}}
-    .dream-banner .orb,.dream-banner .orb.two,.dream-banner .stars {{display:none;}}
-    .cute-illustration {{position:absolute;right:2%;bottom:-10px;font-size:clamp(75px,11vw,145px);z-index:1;filter:drop-shadow(0 12px 8px #385A7D26);transform:rotate(-4deg);}}
-    .cute-sparkles {{position:absolute;right:26%;top:14px;font-size:28px;color:#FFB35B;letter-spacing:10px;}}
-    .dashboard-intro {{background:linear-gradient(100deg,{'#263A59' if dark else '#FCEAF4'},{'#2C4A64' if dark else '#E5F3FF'});border:1px solid {line};}}
-    .dashboard-intro strong {{color:{text};}}
-    .dashboard-intro span {{color:{muted};}}
-    .dashboard-card {{border:1px solid {line};box-shadow:0 8px 23px #6A88A516;}}
-    div[class*='st-key-stat_all'] button {{background:{'#243D64' if dark else '#E8F1FF'} !important;border:1px solid #91B9F5 !important;}}
-    div[class*='st-key-stat_done'] button {{background:{'#1E514B' if dark else '#E0FAEF'} !important;border:1px solid #7AD9B3 !important;}}
-    div[class*='st-key-stat_pending'] button {{background:{'#604456' if dark else '#FFF0E9'} !important;border:1px solid #FFC3A8 !important;}}
-    div[class*='st-key-stat_'] button p {{color:{text} !important;}}
-    [data-testid='stVerticalBlockBorderWrapper'] {{box-shadow:0 5px 20px #6A88A510;}}
-    @media(max-width:640px) {{.dream-banner {{height:165px;}}.dream-banner .quote-slide {{width:80%;padding:23px 16px;}}.cute-illustration {{font-size:74px;right:-12px;}}.cute-sparkles {{display:none;}}}}
     </style>"""
 
 # คำคมเปลี่ยนเฉพาะเมื่อกลับมาหน้าหลัก ไม่เปลี่ยนทุกครั้งที่กดปุ่มในหน้าเดียวกัน
@@ -619,11 +597,11 @@ if page == '🏠 หน้าหลัก':
     st.markdown(
         '<div class="dream-banner" aria-label="คำคมการเรียนรู้เคลื่อนไหว">'
         '<div class="orb"></div><div class="orb two"></div>'
-        '<div class="cute-sparkles">✦ ✧ ✦</div><div class="cute-illustration" aria-hidden="true">👩🏻‍💻📚</div>' + slides + '</div>',
+        '<div class="stars">✦ ✧ ✦</div>' + slides + '</div>',
         unsafe_allow_html=True,
     )
     st.markdown(
-        '<div class="dashboard-intro"><strong>🌸 แดชบอร์ดการเรียนของฉัน</strong>'
+        '<div class="dashboard-intro"><strong>✦ แดชบอร์ดการเรียนของฉัน</strong>'
         '<span>ติดตามงาน ความคืบหน้า และแผนการอ่านได้ในหน้าเดียว</span></div>',
         unsafe_allow_html=True,
     )
