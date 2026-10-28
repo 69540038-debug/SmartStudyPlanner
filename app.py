@@ -234,6 +234,34 @@ def theme_styles(dark):
     .study-section-note {{font-size:.91rem;color:{muted};margin:0 0 16px 4px;line-height:1.7;}}
     div[class*='st-key-new_task_launcher'] button p,div[class*='st-key-new_task_launcher'] button span {{font-size:1.4rem!important;font-weight:800!important;letter-spacing:.01em!important;line-height:1.5!important;color:#17343A!important;}}
     @media(max-width:640px) {{div[class*='st-key-new_task_launcher'] button p,div[class*='st-key-new_task_launcher'] button span {{font-size:1.13rem!important;}}}}
+
+    /* Mobile-only layout improvements. Original colors, content and desktop layout remain unchanged. */
+    div[class*='st-key-mobile_calendar_picker'] {{display:none;}}
+    @media (max-width: 700px) {{
+      [data-testid='stMainBlockContainer'] {{padding:1rem .8rem 3rem!important;max-width:100%!important;}}
+      [data-testid='stMain'] {{overflow-x:clip;}}
+      [data-testid='stHorizontalBlock'] {{flex-wrap:wrap!important;gap:.65rem!important;}}
+      [data-testid='stHorizontalBlock'] > [data-testid='stColumn'] {{flex:1 1 100%!important;width:100%!important;min-width:0!important;}}
+      [data-testid='stHorizontalBlock'] > [data-testid='stColumn'] > div {{min-width:0!important;}}
+      div[class*='st-key-stat_'] button {{min-height:90px!important;}}
+      .ssp-brand {{margin:4px 0 12px!important;}}
+      .ssp-brand-name {{font-size:clamp(1.15rem,5.2vw,1.65rem)!important;overflow-wrap:anywhere;}}
+      .ssp-brand-kicker {{font-size:.6rem!important;letter-spacing:.06em!important;}}
+      .ssp-brand-sub {{font-size:.72rem!important;}}
+      .study-section-title {{font-size:1.06rem!important;padding:11px 12px!important;gap:7px!important;}}
+      .dream-banner .banner-copy {{max-width:100%!important;}}
+      .deadline-banner {{padding:12px!important;gap:8px!important;}}
+      [data-testid='stVerticalBlockBorderWrapper'] {{min-width:0!important;}}
+      [data-testid='stVideo'] {{width:100%!important;max-width:100%!important;}}
+      [data-testid='stVideo'] video {{width:100%!important;height:auto!important;}}
+      div[class*='st-key-desktop_calendar_grid'] {{display:none!important;}}
+      div[class*='st-key-mobile_calendar_picker'] {{display:block!important;}}
+      div[class*='st-key-new_task_launcher'] button {{min-height:58px!important;font-size:1.08rem!important;}}
+      div[class*='st-key-new_task_launcher'] button p {{font-size:1.08rem!important;}}
+      [data-testid='stSegmentedControl'] {{max-width:100%;overflow-x:auto;}}
+      [data-testid='stSegmentedControl'] button {{font-size:.82rem!important;}}
+    }}
+    @media (min-width:701px) {{div[class*='st-key-mobile_calendar_picker'] {{display:none!important;}}}}
     </style>"""
 
 # คำคมเปลี่ยนเฉพาะเมื่อกลับมาหน้าหลัก ไม่เปลี่ยนทุกครั้งที่กดปุ่มในหน้าเดียวกัน
@@ -819,40 +847,55 @@ elif page == '📅 ปฏิทิน':
     for task in tasks:
         due_by_day.setdefault(task['due'], []).append(task)
     st.markdown('<div class="calendar-legend"><span class="calendar-pill study">● มิ้นต์: มีแผนอ่าน</span><span class="calendar-pill due">● ส้ม: วันกำหนดส่ง</span><span class="calendar-pill today">★ วันนี้</span></div>', unsafe_allow_html=True)
-    weekdays = [
-        ('Monday', '#F3AF50', '#292F36'),
-        ('Tuesday', '#FF9AC0', '#292F36'),
-        ('Wednesday', '#7AD5A4', '#173E32'),
-        ('Thursday', '#FFAF73', '#292F36'),
-        ('Friday', '#8FD9F7', '#173A4B'),
-        ('Saturday', '#B9A2F4', '#292F36'),
-        ('Sunday', '#FF6B6B', '#FFFFFF'),
-    ]
-    for col, (label, background, foreground) in zip(st.columns(7), weekdays):
-        col.markdown(
-            f'<span class="weekday-name" style="background:{background};color:{foreground}">{label}</span>',
-            unsafe_allow_html=True,
+    # มือถือใช้ตัวเลือกวันที่แทนตาราง 7 คอลัมน์ที่แคบเกินไป
+    with st.container(key='mobile_calendar_picker'):
+        st.markdown('#### 📱 เลือกวันที่เพื่อดูแผนอ่านและวันส่งงาน')
+        mobile_selected = st.date_input(
+            'วันที่ต้องการดู',
+            value=date.fromisoformat(st.session_state.get('selected_day', date.today().isoformat())),
+            key='mobile_calendar_date',
+            format='DD/MM/YYYY',
         )
-    for week in calendar.monthcalendar(first.year, first.month):
-        cols = st.columns(7, gap='small')
-        for i, day in enumerate(week):
-            with cols[i]:
-                if not day:
-                    st.write(' ')
-                    continue
-                key = date(first.year,first.month,day).isoformat()
-                hours_today = sum(r['hours'] for r in by_day.get(key, []))
-                due_count = len(due_by_day.get(key, []))
-                suffix = (' ⭐' if key == date.today().isoformat() else '')
-                if hours_today:
-                    suffix += f' 📖{readable_time(hours_today)}'
-                if due_count:
-                    suffix += f' 🟠{due_count}'
-                if st.button(f'{day}{suffix}', key=f'cal_{key}' + ('-today' if key == date.today().isoformat() else ''), use_container_width=True,
-                    type='primary' if st.session_state.get('selected_day') == key else 'secondary'):
-                    st.session_state.selected_day = key
-                    st.session_state.calendar_target_task = None
-                    st.rerun()
+        if mobile_selected.isoformat() != st.session_state.get('selected_day', date.today().isoformat()):
+            st.session_state.selected_day = mobile_selected.isoformat()
+            st.session_state.calendar_target_task = None
+            st.rerun()
+        st.caption('เลือกวันที่เพื่อดูแผนอ่านและงานที่กำหนดส่งในวันนั้น')
+    with st.container(key='desktop_calendar_grid'):
+        weekdays = [
+            ('Monday', '#F3AF50', '#292F36'),
+            ('Tuesday', '#FF9AC0', '#292F36'),
+            ('Wednesday', '#7AD5A4', '#173E32'),
+            ('Thursday', '#FFAF73', '#292F36'),
+            ('Friday', '#8FD9F7', '#173A4B'),
+            ('Saturday', '#B9A2F4', '#292F36'),
+            ('Sunday', '#FF6B6B', '#FFFFFF'),
+        ]
+        for col, (label, background, foreground) in zip(st.columns(7), weekdays):
+            col.markdown(
+                f'<span class="weekday-name" style="background:{background};color:{foreground}">{label}</span>',
+                unsafe_allow_html=True,
+            )
+        for week in calendar.monthcalendar(first.year, first.month):
+            cols = st.columns(7, gap='small')
+            for i, day in enumerate(week):
+                with cols[i]:
+                    if not day:
+                        st.write(' ')
+                        continue
+                    key = date(first.year,first.month,day).isoformat()
+                    hours_today = sum(r['hours'] for r in by_day.get(key, []))
+                    due_count = len(due_by_day.get(key, []))
+                    suffix = (' ⭐' if key == date.today().isoformat() else '')
+                    if hours_today:
+                        suffix += f' 📖{readable_time(hours_today)}'
+                    if due_count:
+                        suffix += f' 🟠{due_count}'
+                    if st.button(f'{day}{suffix}', key=f'cal_{key}' + ('-today' if key == date.today().isoformat() else ''), use_container_width=True,
+                        type='primary' if st.session_state.get('selected_day') == key else 'secondary'):
+                        st.session_state.selected_day = key
+                        st.session_state.calendar_target_task = None
+                        st.rerun()
     chosen = st.session_state.get('selected_day', date.today().isoformat())
     selected = date.fromisoformat(chosen)
     st.markdown(f'#### 📖 รายละเอียดวันที่ {selected.strftime("%d/%m/%Y")}')
