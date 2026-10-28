@@ -51,7 +51,15 @@ def theme_styles(dark):
     div.stButton > button[kind='primary']:hover,div.stFormSubmitButton > button[kind='primary']:hover {{background:#F3AF50;color:#292F36;border-color:#F3AF50;}}
     div.stButton > button[kind='secondary'] {{background:{panel};color:{text};border:1px solid {line};}}
     div.stButton > button[kind='secondary']:hover {{background:{hover};border-color:#4ECDC4;color:{text};}}
-    [data-testid='stProgress'] [role='progressbar'] > div {{background:#4ECDC4 !important;}}
+    [data-testid='stProgress'] [role='progressbar'] > div {{background:#20A67A !important;}}
+    div[class*='st-key-home_done_'] button, div[class*='st-key-calendar_done_'] button, div[class*='st-key-focus_'] button {{background:#20A67A!important;color:white!important;border-color:#168963!important;}}
+    div[class*='st-key-home_done_'] button:hover, div[class*='st-key-calendar_done_'] button:hover {{background:#168963!important;}}
+    div[class*='st-key-home_del_'] button, div[class*='st-key-calendar_del_'] button {{background:#FF6B6B!important;color:white!important;border-color:#FF6B6B!important;}}
+    div[class*='st-key-home_del_'] button:hover, div[class*='st-key-calendar_del_'] button:hover {{background:#DE4C4C!important;}}
+    div[data-testid='stButton'] button:focus-visible {{outline:3px solid #F3AF50!important;outline-offset:2px;}}
+    .study-task-title {{font-size:1.08rem;font-weight:700;color:{text};background:{hover};border-left:5px solid #F3AF50;padding:10px 14px;border-radius:9px;margin-bottom:5px;}}
+    .study-progress-label {{font-size:.84rem;color:{muted};margin-top:5px;}}
+    
     .hero-panel {{background:linear-gradient(120deg,#292F36,#36535A);border:1px solid #4ECDC477;border-radius:22px;padding:24px 26px;margin:8px 0 16px;box-shadow:0 10px 30px #111A2430;position:relative;overflow:hidden;}}
     .hero-panel::after {{content:'✦  ✧  ✦';position:absolute;right:18px;top:12px;color:#F3AF50;opacity:.65;letter-spacing:12px;font-size:21px;pointer-events:none;}}
     .quote-slide {{position:absolute;inset:0;padding:24px 26px;opacity:0;animation:quote-cycle 40s infinite;}}
@@ -65,8 +73,30 @@ def theme_styles(dark):
     .hero-panel:hover .quote-slide {{animation-play-state:paused;}}
     .hero-panel strong {{color:#4ECDC4;font-family:'Mali','Prompt',sans-serif;font-size:clamp(1.08rem,2.2vw,1.5rem);line-height:1.6;display:block;max-width:85%;}}
     .hero-panel p {{margin:8px 0 0;color:#F6F9F7 !important;line-height:1.75;}}
+    /* Banner เคลื่อนไหวแบบเบา ๆ โดยไม่ต้องโหลดวิดีโอ */
+    .dream-banner {{height:155px;position:relative;overflow:hidden;border-radius:22px;margin:12px 0 22px;background:radial-gradient(circle at 80% 30%,#315A66 0%,#292F36 53%,#172329 100%);border:1px solid #4ECDC480;box-shadow:0 10px 26px #12242A24;}}
+    .dream-banner .orb {{position:absolute;border-radius:50%;border:1px solid #4ECDC475;width:205px;height:205px;right:11%;top:-43px;animation:orbit-float 12s ease-in-out infinite alternate;}}
+    .dream-banner .orb::before {{content:'';position:absolute;width:25px;height:25px;background:#F3AF50;border-radius:50%;top:28px;left:23px;box-shadow:0 0 24px #F3AF5099;}}
+    .dream-banner .orb.two {{width:115px;height:115px;right:18%;top:14px;border-color:#FF6B6B99;animation-duration:9s;animation-direction:alternate-reverse;}}
+    .dream-banner .orb.two::before {{background:#FF6B6B;width:12px;height:12px;top:8px;left:12px;}}
+    .dream-banner .stars {{position:absolute;right:4%;top:17px;font-size:26px;letter-spacing:14px;color:#F3AF50;animation:star-shine 4s ease-in-out infinite alternate;}}
+    .dream-banner .banner-copy {{position:relative;z-index:1;padding:28px 30px;max-width:75%;}}
+    .dream-banner .banner-kicker {{color:#4ECDC4;font-weight:700;font-size:12px;letter-spacing:3px;}}
+    .dream-banner .banner-title {{color:#FFFFFF;font-size:clamp(19px,2.7vw,31px);font-weight:700;line-height:1.45;margin-top:8px;}}
+    .dream-banner .banner-sub {{color:#DDEBE9;font-size:12px;margin-top:7px;}}
+    @keyframes orbit-float {{from {{transform:translateY(-7px) rotate(-12deg)}}to {{transform:translateY(12px) rotate(20deg)}}}}
+    @keyframes star-shine {{from {{opacity:.3;transform:translateY(5px)}}to {{opacity:1;transform:translateY(-5px)}}}}
+    /* ปฏิทิน: วันแต่ละช่องขยับเล็กน้อยเมื่อชี้ ไม่เปลี่ยนความหมายของสี */
+    div[class*='st-key-cal_'] button {{min-height:61px!important;border-radius:14px!important;border:1px solid {line}!important;background:{panel}!important;color:{text}!important;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important;}}
+    div[class*='st-key-cal_'] button:hover {{transform:translateY(-3px)!important;border-color:#4ECDC4!important;box-shadow:0 6px 15px #4ECDC433!important;}}
+    div[class*='st-key-cal_'] button[kind='primary'] {{background:#4ECDC4!important;color:#17343A!important;border-color:#36BDB3!important;font-weight:700!important;}}
+    .calendar-legend {{display:flex;gap:9px;flex-wrap:wrap;margin:8px 0 14px;}}
+    .calendar-pill {{font-size:12px;font-weight:600;padding:6px 11px;border-radius:999px;background:{panel};color:{text};border:1px solid {line};}}
+    .calendar-pill.study {{border-color:#4ECDC4;}} .calendar-pill.due {{border-color:#F3AF50;}} .calendar-pill.today {{border-color:#FF6B6B;}}
+    .calendar-summary {{padding:14px 18px;border-radius:14px;background:{hover};border-left:4px solid #4ECDC4;margin:12px 0;}}
+    @media (max-width:640px) {{.dream-banner {{height:146px;}} .dream-banner .banner-copy {{max-width:90%;padding:22px 18px;}} .dream-banner .orb {{right:-60px;opacity:.5;}} div[class*='st-key-cal_'] button {{min-height:54px!important;font-size:11px!important;padding:4px!important;}}}}
     .stAlert {{border-radius:13px;}}
-    @media (prefers-reduced-motion:reduce) {{.quote-slide {{animation:none;opacity:0;}} .quote-slide:first-child {{opacity:1;}}h1,h2,h3,div.stButton > button,div.stFormSubmitButton > button {{transition:none!important;transform:none!important;}}}}
+    @media (prefers-reduced-motion:reduce) {{.dream-banner .orb,.dream-banner .stars {{animation:none!important;}} div[class*="st-key-cal_"] button {{transition:none!important;}} .quote-slide {{animation:none;opacity:0;}} .quote-slide:first-child {{opacity:1;}}h1,h2,h3,div.stButton > button,div.stFormSubmitButton > button {{transition:none!important;transform:none!important;}}}}
     </style>"""
 
 # คำคมเปลี่ยนเฉพาะเมื่อกลับมาหน้าหลัก ไม่เปลี่ยนทุกครั้งที่กดปุ่มในหน้าเดียวกัน
@@ -318,12 +348,12 @@ def deadline_alerts(tasks, today):
             continue
         days = (date.fromisoformat(task['due']) - today).days
         if days < 0:
-            alerts.append(('error', f"{task['subject']} — {task['name']}: เลยกำหนด {abs(days)} วัน"))
+            alerts.append(('error', task, f"เลยกำหนด {abs(days)} วัน"))
         elif days == 0:
-            alerts.append(('error', f"{task['subject']} — {task['name']}: ครบกำหนดวันนี้"))
+            alerts.append(('error', task, 'ครบกำหนดวันนี้'))
         elif days <= 3:
-            alerts.append(('warning', f"{task['subject']} — {task['name']}: เหลือ {days} วัน"))
-    return alerts
+            alerts.append(('warning', task, f'เหลือ {days} วัน'))
+    return sorted(alerts, key=lambda a: a[1]['due'])
 
 
 
@@ -344,51 +374,60 @@ def toggle_done(task_id):
     commit(updated, 'อัปเดตสถานะงานแล้ว')
 
 
-def render_task(task, prefix):
-    """A compact task card used both on dashboard and calendar."""
+def render_task(task, prefix, rank=None):
+    """การ์ดงานพร้อมลำดับ ปุ่มสถานะ และการยืนยันก่อนลบ."""
     with st.container(border=True):
-        left, right = st.columns([4, 1], vertical_alignment='center')
+        left, right = st.columns([4, 1.35], vertical_alignment='center')
         with left:
-            st.markdown(f"**{'✅ ' if task['done'] else '📌 '}{html.escape(task['name'])}**")
+            rank_label = f'{rank}. ' if rank is not None else ''
+            title = f"{rank_label}{html.escape(task['name'])}"
+            st.markdown(f'<div class="study-task-title">{title}</div>', unsafe_allow_html=True)
             st.caption(f"ส่ง {task['due']} · เหลือ {readable_time(remaining_hours(task))} จาก {readable_time(task['hours'])} · {priority_label(priority_score(task))}")
         with right:
-            if st.button('↩️ เปิดใหม่' if task['done'] else '✓ เสร็จแล้ว', key=f'{prefix}_done_{task["id"]}', type='primary' if not task['done'] else 'secondary', use_container_width=True):
+            label = '↩️ ยังไม่เสร็จ (เปิดใหม่)' if task['done'] else '✓ เสร็จแล้ว'
+            if st.button(label, key=f'{prefix}_done_{task["id"]}', type='secondary' if task['done'] else 'primary', use_container_width=True):
                 toggle_done(task['id'])
-        if not task['done']:
-            st.progress(min(1.0, float(task['studied']) / float(task['hours'])))
-            with st.popover('⏱️ บันทึกเวลา / ลบงาน'):
-                if remaining_hours(task) > 0:
-                    with st.form(f'{prefix}_log_{task["id"]}'):
-                        col_h, col_m = st.columns(2)
-                        with col_h:
-                            add_h = st.number_input('ชั่วโมง', min_value=0, max_value=100, value=0, step=1,
-                                key=f'{prefix}_add_h_{task["id"]}')
-                        with col_m:
-                            add_m = st.number_input('นาที', min_value=0, max_value=59, value=30, step=5,
-                                key=f'{prefix}_add_m_{task["id"]}')
-                        if st.form_submit_button('บันทึกเวลาอ่าน', type='primary'):
-                            total_minutes = add_h * 60 + add_m
-                            available_minutes = int(round(remaining_hours(task) * 60))
-                            if total_minutes <= 0:
-                                st.warning('กรุณาระบุเวลาอย่างน้อย 1 นาที')
-                            elif total_minutes > available_minutes:
-                                st.warning(f'เหลือเวลาอ่านเพียง {readable_time(remaining_hours(task))} กรุณาระบุไม่เกินเวลาที่เหลือ')
-                            else:
-                                updated = [dict(t) for t in st.session_state.tasks]
-                                selected = next(t for t in updated if t['id'] == task['id'])
-                                actual = round(total_minutes / 60, 6)
-                                selected['studied'] = min(selected['hours'], round(selected['studied'] + actual, 6))
-                                selected['logs'] = [*selected.get('logs', []), {'date': date.today().isoformat(), 'hours': actual}]
-                                if remaining_hours(selected) < 1/120:
-                                    selected['studied'] = selected['hours']
-                                    selected['done'] = True
-                                commit(updated, 'บันทึกเวลาอ่านเรียบร้อย')
-                if st.button('🗑️ ลบงานนี้', key=f'{prefix}_del_{task["id"]}'):
-                    commit([t for t in st.session_state.tasks if t['id'] != task['id']], 'ลบงานแล้ว')
+        if task['done']:
+            st.progress(1.0)
+            st.caption('🟢 เสร็จแล้ว 100%')
         else:
-            st.caption('งานนี้ทำเสร็จแล้ว สามารถกดเปิดใหม่ได้')
-            if st.button('🗑️ ลบงานนี้', key=f'{prefix}_del_{task["id"]}'):
-                commit([t for t in st.session_state.tasks if t['id'] != task['id']], 'ลบงานแล้ว')
+            pct = min(1.0, max(0.0, float(task['studied']) / max(float(task['hours']), 0.01)))
+            st.progress(pct)
+            st.markdown(f'<div class="study-progress-label">🟢 อ่านแล้ว {readable_time(task["studied"])} ({pct:.0%}) · ⚪ เหลือ {readable_time(remaining_hours(task))}</div>', unsafe_allow_html=True)
+        tools, delete_col = st.columns([3.8, 1.2], vertical_alignment='bottom')
+        with tools:
+            if not task['done']:
+                with st.popover('⏱️ บันทึกเวลาอ่าน'):
+                    if remaining_hours(task) > 0:
+                        with st.form(f'{prefix}_log_{task["id"]}'):
+                            col_h, col_m = st.columns(2)
+                            with col_h:
+                                add_h = st.number_input('ชั่วโมง', min_value=0, max_value=100, value=0, step=1, key=f'{prefix}_add_h_{task["id"]}')
+                            with col_m:
+                                add_m = st.number_input('นาที', min_value=0, max_value=59, value=30, step=5, key=f'{prefix}_add_m_{task["id"]}')
+                            if st.form_submit_button('บันทึกเวลาอ่าน', type='primary'):
+                                total_minutes = add_h * 60 + add_m
+                                available_minutes = int(round(remaining_hours(task) * 60))
+                                if total_minutes <= 0:
+                                    st.warning('กรุณาระบุเวลาอย่างน้อย 1 นาที')
+                                elif total_minutes > available_minutes:
+                                    st.warning(f'เหลือเวลาอ่านเพียง {readable_time(remaining_hours(task))} กรุณาระบุไม่เกินเวลาที่เหลือ')
+                                else:
+                                    updated = [dict(t) for t in st.session_state.tasks]
+                                    selected = next(t for t in updated if t['id'] == task['id'])
+                                    actual = round(total_minutes / 60, 6)
+                                    selected['studied'] = min(selected['hours'], round(selected['studied'] + actual, 6))
+                                    selected['logs'] = [*selected.get('logs', []), {'date': date.today().isoformat(), 'hours': actual}]
+                                    if remaining_hours(selected) < 1/120:
+                                        selected['studied'] = selected['hours']
+                                        selected['done'] = True
+                                    commit(updated, 'บันทึกเวลาอ่านเรียบร้อย')
+        with delete_col:
+            with st.popover('🗑️ ลบงาน'):
+                st.warning(f"ยืนยันลบงาน “{task['name']}” หรือไม่? การลบจะนำงานและประวัติการอ่านออกด้วย")
+                confirm = st.checkbox('ฉันยืนยันว่าต้องการลบ', key=f'{prefix}_confirm_{task["id"]}')
+                if st.button('ยืนยันลบถาวร', key=f'{prefix}_del_{task["id"]}', disabled=not confirm, use_container_width=True):
+                    commit([t for t in st.session_state.tasks if t['id'] != task['id']], 'ลบงานแล้ว')
 
 
 def grouped_subjects(items):
@@ -402,14 +441,15 @@ def render_subjects(items, prefix='home'):
     groups = grouped_subjects(items)
     if not groups:
         st.info('ยังไม่มีงาน กดเพิ่มงานเพื่อเริ่มต้น')
+    ranks = {t['id']: i for i, t in enumerate(sorted([t for t in items if not t['done']], key=lambda t: (-priority_score(t), t['due'], t['id'])), 1)}
     for subject, subject_tasks in groups.items():
         done = sum(t['done'] for t in subject_tasks)
         with st.expander(f'{icon_for_subject(subject, st.session_state.tasks)} {subject}  ·  {done}/{len(subject_tasks)} งานเสร็จ', expanded=len(groups) == 1):
             picture = subject_image(st.session_state.tasks, subject)
             if picture:
                 st.image(picture, width=150)
-            for task in subject_tasks:
-                render_task(task, prefix)
+            for task in sorted(subject_tasks, key=lambda t: (t["done"], -priority_score(t), t["due"])):
+                render_task(task, prefix, ranks.get(task["id"]))
 
 
 def go_to_calendar():
@@ -448,6 +488,11 @@ if page == '🏠 หน้าหลัก':
     quote_order = [(st.session_state.quote_index + i) % len(QUOTES) for i in range(5)]
     slides = ''.join(f'<div class="quote-slide"><strong>✧ {html.escape(QUOTES[i][0])}</strong><p>{html.escape(QUOTES[i][1])}</p></div>' for i in quote_order)
     st.markdown(f'<div class="hero-panel">{slides}</div>', unsafe_allow_html=True)
+    st.markdown('''''''''<div class="dream-banner" aria-label="แบนเนอร์ตกแต่งการเรียนรู้">
+      <div class="orb"></div><div class="orb two"></div><div class="stars">✦ ✧ ✦</div>
+      <div class="banner-copy"><div class="banner-kicker">YOUR STUDY UNIVERSE</div>
+      <div class="banner-title">Make today a little brighter ✦</div>
+      <div class="banner-sub">จัดการงานทีละนิด แล้วเติบโตในจังหวะของตัวเอง</div></div></div>''''''''', unsafe_allow_html=True)
     completed = sum(t['done'] for t in tasks)
     pending = [t for t in tasks if not t['done']]
     # การ์ดสรุปคลิกได้: กรองรายการงานด้านล่างทันที
@@ -500,8 +545,19 @@ if page == '🏠 หน้าหลัก':
     alerts = deadline_alerts(tasks, today)
     if alerts:
         with st.expander(f'🔔 งานใกล้กำหนด · {len(alerts)} รายการ', expanded=True):
-            for level, message in alerts:
-                (st.error if level == 'error' else st.warning)(message)
+            st.caption('กด “ดูงาน” เพื่อเปิดรายละเอียดและจัดการได้ทันที')
+            for level, alert_task, message in alerts:
+                c1, c2 = st.columns([5, 1], vertical_alignment='center')
+                with c1:
+                    (st.error if level == 'error' else st.warning)(f"{icon_for_subject(alert_task['subject'], tasks)} {alert_task['subject']} — {alert_task['name']}: {message}")
+                with c2:
+                    if st.button('ดูงาน', key=f'alert_open_{alert_task["id"]}', use_container_width=True):
+                        st.session_state.alert_selected = alert_task['id']
+            selected_alert = next((t for t in tasks if t['id'] == st.session_state.get('alert_selected') and not t['done']), None)
+            if selected_alert:
+                st.markdown('#### 🔎 รายละเอียดงานที่เลือก')
+                st.caption(selected_alert['subject'])
+                render_task(selected_alert, 'alert')
 
     st.subheader('🎯 Today Focus')
     daily_hours = st.session_state.get('daily_hours', 2.0)
@@ -605,7 +661,7 @@ elif page == '📅 ปฏิทิน':
         by_day.setdefault(row['date'], []).append(row)
     for task in tasks:
         due_by_day.setdefault(task['due'], []).append(task)
-    st.caption('🟢 มีแผนอ่าน · 🟠 มีกำหนดส่ง · ⭐ วันนี้')
+    st.markdown('<div class="calendar-legend"><span class="calendar-pill study">● มิ้นต์: มีแผนอ่าน</span><span class="calendar-pill due">● ส้ม: วันกำหนดส่ง</span><span class="calendar-pill today">★ วันนี้</span></div>', unsafe_allow_html=True)
     for col, label in zip(st.columns(7), ['จ','อ','พ','พฤ','ศ','ส','อา']):
         col.markdown(f'**{label}**')
     for week in calendar.monthcalendar(first.year, first.month):
@@ -620,9 +676,9 @@ elif page == '📅 ปฏิทิน':
                 due_count = len(due_by_day.get(key, []))
                 suffix = (' ⭐' if key == date.today().isoformat() else '')
                 if hours_today:
-                    suffix += f' 📗{readable_time(hours_today)}'
+                    suffix += f' 📖{readable_time(hours_today)}'
                 if due_count:
-                    suffix += f' 🔔{due_count}'
+                    suffix += f' 🟠{due_count}'
                 if st.button(f'{day}{suffix}', key=f'cal_{key}', use_container_width=True,
                     type='primary' if st.session_state.get('selected_day') == key else 'secondary'):
                     st.session_state.selected_day = key
@@ -630,6 +686,9 @@ elif page == '📅 ปฏิทิน':
     chosen = st.session_state.get('selected_day', date.today().isoformat())
     selected = date.fromisoformat(chosen)
     st.markdown(f'#### 📖 รายละเอียดวันที่ {selected.strftime("%d/%m/%Y")}')
+    day_hours = sum(r['hours'] for r in by_day.get(chosen, []))
+    day_due_count = len(due_by_day.get(chosen, []))
+    st.markdown(f'<div class="calendar-summary">✦ แผนอ่าน {readable_time(day_hours)} &nbsp; · &nbsp; กำหนดส่ง {day_due_count} งาน</div>', unsafe_allow_html=True)
     rows = by_day.get(chosen, [])
     dues = due_by_day.get(chosen, [])
     if not rows and not dues:
