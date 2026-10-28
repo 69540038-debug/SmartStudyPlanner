@@ -181,6 +181,13 @@ def theme_styles(dark):
     @media (max-width:640px) {{.dream-banner .quote-slide {{width:95%;padding:20px 16px;}} .dream-banner {{height:146px;}} .dream-banner .banner-copy {{max-width:90%;padding:22px 18px;}} .dream-banner .orb {{right:-60px;opacity:.5;}} div[class*='st-key-cal_'] button {{min-height:54px!important;font-size:11px!important;padding:4px!important;}}}}
     .stAlert {{border-radius:13px;}}
     @media (prefers-reduced-motion:reduce) {{.dream-banner .orb,.dream-banner .stars {{animation:none!important;}} div[class*="st-key-cal_"] button {{transition:none!important;}} .quote-slide {{animation:none;opacity:0;}} .quote-slide:first-child {{opacity:1;}}h1,h2,h3,div.stButton > button,div.stFormSubmitButton > button {{transition:none!important;transform:none!important;}}}}
+
+    /* สรุปงาน: ตัวเลขใหญ่ อ่านได้ทันทีทั้งสองโหมด */
+    div[class*='st-key-stat_'] button {{min-height:112px!important;padding:14px 8px!important;border-radius:18px!important;}}
+    div[class*='st-key-stat_'] button p {{white-space:pre-line!important;font-size:1.05rem!important;line-height:1.65!important;font-weight:700!important;text-align:center!important;}}
+    div[class*='st-key-stat_'] button p::first-line {{font-size:2.05rem!important;font-weight:800!important;}}
+    div[class*='st-key-stat_'] button:hover {{transform:translateY(-2px);box-shadow:0 7px 17px #4ECDC43A!important;}}
+    @media (max-width:640px) {{div[class*='st-key-stat_'] button {{min-height:96px!important;}} div[class*='st-key-stat_'] button p {{font-size:.85rem!important;}} div[class*='st-key-stat_'] button p::first-line {{font-size:1.6rem!important;}}}}
     .deadline-banner {{background:linear-gradient(115deg,#FFF0DB,#FFE1DD);border:2px solid #F3AF50;border-left:7px solid #FF6B6B;border-radius:17px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin:18px 0 10px;color:#292F36;box-shadow:0 5px 16px #F3AF5026;}}
     .deadline-banner strong {{display:block;font-size:1.12rem;color:#292F36 !important;}}
     .deadline-banner span {{display:block;font-size:.86rem;color:#674D44 !important;margin-top:3px;}}
@@ -462,7 +469,7 @@ def render_task(task, prefix, rank=None):
             f'<div class="study-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{pct*100:.0f}" aria-label="ความคืบหน้าการอ่าน">'
             f'<div class="study-progress-fill" style="width:{pct*100:.2f}%"></div></div>'
             f'<div class="study-progress-legend">'
-            f'<span><i class="study-progress-dot" style="background:#167C74"></i><b>อ่านแล้ว {read_time} ({pct:.0%})</b></span>'
+            f'<span><i class="study-progress-dot" style="background:#167C74"></i><b>{"งานเสร็จแล้ว (100%)" if task["done"] else f"อ่านแล้ว {read_time} ({pct:.0%})"}</b></span>'
             f'<span><i class="study-progress-dot" style="background:#D5EFEB;border:1px solid #9ACFC7"></i>เหลือ {left_time}</span>'
             f'</div>', unsafe_allow_html=True
         )
@@ -548,6 +555,7 @@ st.markdown(theme_styles(st.session_state.theme_mode), unsafe_allow_html=True)
 with header_left:
     st.title('✦ Smart Study Planner')
 st.caption('วางแผนการเรียน · ติดตามความคืบหน้า · จัดงานตามรายวิชา')
+st.info('🧪 เว็บไซต์นี้เป็นระบบทดลองเพื่อการศึกษา ยังไม่พัฒนาสำหรับใช้งานจริง ข้อมูลที่บันทึกอาจสูญหายเมื่อระบบรีสตาร์ต และผู้ใช้เว็บไซต์เดียวกันอาจเห็นข้อมูลร่วมกัน กรุณาอย่าใส่ข้อมูลส่วนตัวหรือข้อมูลสำคัญ')
 page = st.sidebar.radio('เมนู', ['🏠 หน้าหลัก', '📅 ปฏิทิน'], key='navigation')
 if 'quote_index' not in st.session_state:
     next_quote()
@@ -575,21 +583,21 @@ if page == '🏠 หน้าหลัก':
         st.session_state.task_filter = 'ทั้งหมด'
     a,b,c = st.columns(3)
     with a:
-        if st.button(f'📚 งานทั้งหมด {len(tasks)} รายการ', key='stat_all',
+        if st.button(f'{len(tasks)}\n📚 งานทั้งหมด', key='stat_all',
                      use_container_width=True, type='primary' if st.session_state.task_filter == 'ทั้งหมด' else 'secondary'):
             st.session_state.task_filter = 'ทั้งหมด'
             st.rerun()
     with b:
-        if st.button(f'✅ เสร็จแล้ว {completed} รายการ', key='stat_done',
+        if st.button(f'{completed}\n✅ เสร็จแล้ว', key='stat_done',
                      use_container_width=True, type='primary' if st.session_state.task_filter == 'เสร็จแล้ว' else 'secondary'):
             st.session_state.task_filter = 'เสร็จแล้ว'
             st.rerun()
     with c:
-        if st.button(f'🕒 รอดำเนินการ {len(pending)} รายการ', key='stat_pending',
+        if st.button(f'{len(pending)}\n🕒 รอดำเนินการ', key='stat_pending',
                      use_container_width=True, type='primary' if st.session_state.task_filter == 'ยังไม่เสร็จ' else 'secondary'):
             st.session_state.task_filter = 'ยังไม่เสร็จ'
             st.rerun()
-    st.caption('เลือกการ์ดด้านบนเพื่อกรองรายการงาน')
+    st.caption('กดตัวเลขเพื่อเลือกดูรายการงานทั้งหมด งานที่เสร็จแล้ว หรือรายการที่ยังต้องทำ')
     st.markdown('<div id="task-list"></div>', unsafe_allow_html=True)
     st.markdown('[↓ ไปยังรายการงาน](#my-subjects)')
 
@@ -642,7 +650,8 @@ if page == '🏠 หน้าหลัก':
                 st.caption(selected_alert['subject'])
                 render_task(selected_alert, 'alert')
 
-    st.subheader('🎯 Today Focus')
+    st.subheader('🎯 Today Focus · งานที่ควรทำวันนี้')
+    st.caption('ระบบให้ความสำคัญกับวันกำหนดส่งก่อน แล้วจึงพิจารณาความยากและเวลาที่ต้องใช้')
     daily_hours = st.session_state.get('daily_hours', 2.0)
     schedule, _ = build_schedule(tasks, daily_hours, today)
     focus = [r for r in schedule if r['date'] == today.isoformat()]
@@ -718,6 +727,7 @@ if page == '🏠 หน้าหลัก':
 
 elif page == '📅 ปฏิทิน':
     st.subheader('📅 ปฏิทินการเรียน')
+    st.caption('ตารางอ่านเป็นคำแนะนำอัตโนมัติ ไม่ใช่ประวัติเวลาที่อ่านจริง')
     st.caption('เลือกวันที่เพื่อดูแผนอ่านและงานกำหนดส่ง · Smart Reschedule ปรับตามชั่วโมงที่เหลืออัตโนมัติ')
     daily_hours = st.slider('เวลาว่างอ่านหนังสือต่อวัน (ชั่วโมง)', 0.5, 12.0, 2.0, 0.5, key='daily_hours')
     schedule, unscheduled = build_schedule(tasks, daily_hours, date.today())
