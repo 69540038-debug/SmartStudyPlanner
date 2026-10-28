@@ -182,6 +182,17 @@ def theme_styles(dark):
     .stAlert {{border-radius:13px;}}
     @media (prefers-reduced-motion:reduce) {{.dream-banner .orb,.dream-banner .stars {{animation:none!important;}} div[class*="st-key-cal_"] button {{transition:none!important;}} .quote-slide {{animation:none;opacity:0;}} .quote-slide:first-child {{opacity:1;}}h1,h2,h3,div.stButton > button,div.stFormSubmitButton > button {{transition:none!important;transform:none!important;}}}}
 
+    /* สำรองข้อมูล: ปุ่มดาวน์โหลดและช่องอัปโหลดอ่านชัดทั้งสองโหมด */
+    [data-testid='stDownloadButton'] button {{background:{panel} !important;color:{text} !important;border:1.5px solid #4ECDC4 !important;}}
+    [data-testid='stDownloadButton'] button *,[data-testid='stDownloadButton'] button p {{color:{text} !important;-webkit-text-fill-color:{text} !important;}}
+    [data-testid='stDownloadButton'] button:hover {{background:{hover} !important;}}
+    [data-testid='stFileUploader'] [data-testid='stFileUploaderDropzone'] {{background:{panel} !important;border:1.5px dashed {line} !important;}}
+    [data-testid='stFileUploader'] [data-testid='stFileUploaderDropzone'] *,
+    [data-testid='stFileUploader'] [data-testid='stFileUploaderDropzone'] p,
+    [data-testid='stFileUploader'] [data-testid='stFileUploaderDropzone'] span {{color:{text} !important;-webkit-text-fill-color:{text} !important;}}
+    [data-testid='stFileUploader'] button {{background:{hover} !important;color:{text} !important;border:1px solid {line} !important;opacity:1 !important;}}
+    [data-testid='stFileUploader'] button * {{color:{text} !important;-webkit-text-fill-color:{text} !important;}}
+    [data-testid='stFileUploader'] label p {{color:{text} !important;}}
     /* สรุปงาน: ตัวเลขใหญ่ อ่านได้ทันทีทั้งสองโหมด */
     div[class*='st-key-stat_'] button {{min-height:112px!important;padding:14px 8px!important;border-radius:18px!important;}}
     div[class*='st-key-stat_'] button p {{white-space:pre-line!important;font-size:1.05rem!important;line-height:1.65!important;font-weight:700!important;text-align:center!important;}}
@@ -578,7 +589,7 @@ if page == '🏠 หน้าหลัก':
     )
     completed = sum(t['done'] for t in tasks)
     pending = [t for t in tasks if not t['done']]
-    # การ์ดสรุปคลิกได้: กรองรายการงานด้านล่างทันที
+    # คลิกการ์ดแล้วรายการที่กรองจะแสดงใต้การ์ดทันที (ไม่ต้องเลื่อนหาด้านล่าง)
     if 'task_filter' not in st.session_state:
         st.session_state.task_filter = 'ทั้งหมด'
     a,b,c = st.columns(3)
@@ -597,9 +608,9 @@ if page == '🏠 หน้าหลัก':
                      use_container_width=True, type='primary' if st.session_state.task_filter == 'ยังไม่เสร็จ' else 'secondary'):
             st.session_state.task_filter = 'ยังไม่เสร็จ'
             st.rerun()
-    st.caption('กดตัวเลขเพื่อเลือกดูรายการงานทั้งหมด งานที่เสร็จแล้ว หรือรายการที่ยังต้องทำ')
-    st.markdown('<div id="task-list"></div>', unsafe_allow_html=True)
-    st.markdown('[↓ ไปยังรายการงาน](#my-subjects)')
+    st.caption('เลือกการ์ดเพื่อแสดงรายการที่ตรงกับสถานะด้านล่างทันที')
+    # ตำแหน่งแสดงผลของรายการ: เติมเนื้อหาภายหลัง แต่แสดงใกล้การ์ดสรุป
+    filtered_list_area = st.container()
 
     action1, action2 = st.columns(2)
     with action1:
@@ -715,14 +726,18 @@ if page == '🏠 หน้าหลัก':
                     'done':False, 'logs':[], 'subject_icon':SUBJECT_ICONS[chosen_icon]}
                 commit([*tasks, new_task], 'เพิ่มงานสำเร็จ')
 
-    filter_mode = st.segmented_control(
-        'แสดงรายการ', ['ทั้งหมด','ยังไม่เสร็จ','เสร็จแล้ว'],
-        key='task_filter'
-    )
-    visible = [t for t in tasks if filter_mode == 'ทั้งหมด' or
-               (filter_mode == 'ยังไม่เสร็จ' and not t['done']) or
-               (filter_mode == 'เสร็จแล้ว' and t['done'])]
-    render_subjects(visible)
+    # รายการงานถูกวางไว้ใต้การ์ดสรุปด้านบน เพื่อให้คลิกแล้วเห็นผลทันที
+    with filtered_list_area:
+        st.markdown('<div id="my-subjects"></div>', unsafe_allow_html=True)
+        st.subheader('📚 รายการงานตามสถานะ')
+        filter_mode = st.segmented_control(
+            'แสดงรายการ', ['ทั้งหมด','ยังไม่เสร็จ','เสร็จแล้ว'],
+            key='task_filter'
+        )
+        visible = [t for t in tasks if filter_mode == 'ทั้งหมด' or
+                   (filter_mode == 'ยังไม่เสร็จ' and not t['done']) or
+                   (filter_mode == 'เสร็จแล้ว' and t['done'])]
+        render_subjects(visible)
 
 
 elif page == '📅 ปฏิทิน':
