@@ -199,6 +199,19 @@ def theme_styles(dark):
     div[class*='st-key-stat_'] button p::first-line {{font-size:2.05rem!important;font-weight:800!important;}}
     div[class*='st-key-stat_'] button:hover {{transform:translateY(-2px);box-shadow:0 7px 17px #4ECDC43A!important;}}
     @media (max-width:640px) {{div[class*='st-key-stat_'] button {{min-height:96px!important;}} div[class*='st-key-stat_'] button p {{font-size:.85rem!important;}} div[class*='st-key-stat_'] button p::first-line {{font-size:1.6rem!important;}}}}
+    /* Dashboard cards: responsive, legible in both themes */
+    .dashboard-intro {{padding:16px 20px;margin:10px 0 16px;border-radius:18px;background:linear-gradient(110deg,#24465D,#326C7A);border:1px solid #4ECDC477;box-shadow:0 7px 20px #102A3520;}}
+    .dashboard-intro strong {{display:block;color:#FFFFFF;font-size:1.24rem;}}
+    .dashboard-intro span {{display:block;color:#E2F5F2;font-size:.88rem;margin-top:5px;}}
+    .dashboard-card {{background:{panel};border:1px solid {line};border-radius:18px;padding:16px 18px;margin:5px 0 12px;box-shadow:0 5px 17px #102A3510;}}
+    .dashboard-card-heading {{font-weight:700;font-size:1.05rem;color:{text};margin-bottom:9px;}}
+    .dashboard-card-note {{color:{muted};font-size:.82rem;margin-top:9px;}}
+    .dashboard-progress-track {{height:13px;border-radius:999px;background:{line};overflow:hidden;}}
+    .dashboard-progress-fill {{height:100%;border-radius:999px;background:linear-gradient(90deg,#4ECDC4,#67B7F7);}}
+    .dashboard-chart-note {{color:{muted};font-size:.82rem;}}
+    div[class*='st-key-stat_'] button {{border:1px solid {line}!important;box-shadow:0 5px 15px #102A3512!important;}}
+    div[class*='st-key-stat_'] button:hover {{border-color:#4ECDC4!important;box-shadow:0 8px 19px #4ECDC433!important;}}
+    @media(max-width:640px) {{.dashboard-intro {{padding:14px 15px;}}.dashboard-card {{padding:13px 14px;}}}}
     .deadline-banner {{background:linear-gradient(115deg,#FFF0DB,#FFE1DD);border:2px solid #F3AF50;border-left:7px solid #FF6B6B;border-radius:17px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin:18px 0 10px;color:#292F36;box-shadow:0 5px 16px #F3AF5026;}}
     .deadline-banner strong {{display:block;font-size:1.12rem;color:#292F36 !important;}}
     .deadline-banner span {{display:block;font-size:.86rem;color:#674D44 !important;margin-top:3px;}}
@@ -587,6 +600,11 @@ if page == '🏠 หน้าหลัก':
         '<div class="stars">✦ ✧ ✦</div>' + slides + '</div>',
         unsafe_allow_html=True,
     )
+    st.markdown(
+        '<div class="dashboard-intro"><strong>✦ แดชบอร์ดการเรียนของฉัน</strong>'
+        '<span>ติดตามงาน ความคืบหน้า และแผนการอ่านได้ในหน้าเดียว</span></div>',
+        unsafe_allow_html=True,
+    )
     completed = sum(t['done'] for t in tasks)
     pending = [t for t in tasks if not t['done']]
     # คลิกการ์ดแล้วรายการที่กรองจะแสดงใต้การ์ดทันที (ไม่ต้องเลื่อนหาด้านล่าง)
@@ -608,6 +626,18 @@ if page == '🏠 หน้าหลัก':
                      use_container_width=True, type='primary' if st.session_state.task_filter == 'ยังไม่เสร็จ' else 'secondary'):
             st.session_state.task_filter = 'ยังไม่เสร็จ'
             st.rerun()
+    completion_pct = (completed / len(tasks) * 100) if tasks else 0
+    st.markdown(
+        '<div class="dashboard-card">'
+        '<div style="display:flex;justify-content:space-between;gap:12px;align-items:center">'
+        '<div class="dashboard-card-heading">📈 ความคืบหน้าการเรียน</div>'
+        f'<strong style="color:#36B9AA;font-size:1.12rem">{completion_pct:.0f}%</strong></div>'
+        '<div class="dashboard-progress-track" role="progressbar" aria-label="สัดส่วนงานที่เสร็จแล้ว" '
+        f'aria-valuenow="{completion_pct:.0f}" aria-valuemin="0" aria-valuemax="100">'
+        f'<div class="dashboard-progress-fill" style="width:{completion_pct:.2f}%"></div></div>'
+        f'<div class="dashboard-card-note">ทำเสร็จแล้ว {completed} จาก {len(tasks)} งาน · คำนวณจากสถานะงานจริง</div>'
+        '</div>', unsafe_allow_html=True,
+    )
     st.caption('เลือกการ์ดเพื่อแสดงรายการที่ตรงกับสถานะด้านล่างทันที')
     # ตำแหน่งแสดงผลของรายการ: เติมเนื้อหาภายหลัง แต่แสดงใกล้การ์ดสรุป
     filtered_list_area = st.container()
@@ -683,12 +713,14 @@ if page == '🏠 หน้าหลัก':
 
     # แยกสรุปเวลาอ่านจริงออกจากรายการรายวิชาอย่างชัดเจน
     st.markdown('### 📈 ภาพรวมการอ่านของฉัน')
-    with st.expander('ดูสรุปเวลาอ่านจริงใน 7 วันล่าสุด', expanded=False):
+    with st.container(border=True):
+        st.markdown('**📈 กราฟเวลาอ่านจริงใน 7 วันล่าสุด**')
         progress_rows = week_progress(tasks, today)
         total_week = sum(row['ชั่วโมง'] for row in progress_rows)
         st.metric('เวลาอ่านจริงรวม 7 วัน', readable_time(total_week))
-        st.bar_chart(pd.DataFrame(progress_rows).set_index('วันที่'), color='#4ECDC4')
-        st.caption('แสดงเฉพาะเวลาที่บันทึกจริงพร้อมวันที่ ไม่ใช่ชั่วโมงที่วางแผน')
+        chart_data = pd.DataFrame(progress_rows).set_index('วันที่')
+        st.line_chart(chart_data, color='#4ECDC4', height=245, use_container_width=True)
+        st.caption('กราฟเส้นแสดงจำนวนชั่วโมงที่บันทึกจริงในแต่ละวัน ไม่ใช่เวลาที่วางแผนไว้')
     st.divider()
 
     st.markdown('<div id="my-subjects"></div>', unsafe_allow_html=True)
