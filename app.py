@@ -1,6 +1,5 @@
 """Smart Study Planner: priorities, study logs, multi-day calendar and backup."""
 import calendar
-import base64
 import html
 import json
 import random
@@ -73,12 +72,61 @@ def theme_styles(dark):
     [data-baseweb='popover'] [data-baseweb='popover-content'] > div {{background:{panel} !important;color:{text} !important;}}
     [data-testid='stPopoverBody'] p,[data-testid='stPopoverBody'] label,
     [data-testid='stPopoverBody'] span {{color:{text} !important;}}
+    /* Fix: ปุ่มบันทึกเวลาอ่านและปุ่ม popover มองเห็นชัดในโหมดมืดและสว่าง */
+    [data-testid='stPopover'] button,
+    [data-testid='stPopover'] button[kind],
+    [data-testid='stPopover'] [data-baseweb='button'],
+    [data-testid='stPopover'] [data-baseweb='popover'] button {{
+        background-color:{panel} !important;
+        color:{text} !important;
+        border:1.5px solid {line} !important;
+        opacity:1 !important;
+        -webkit-text-fill-color:{text} !important;
+    }}
+    [data-testid='stPopover'] button *,
+    [data-testid='stPopover'] button p,
+    [data-testid='stPopover'] button span,
+    [data-testid='stPopover'] button svg,
+    [data-testid='stPopover'] [data-baseweb='button'] * {{
+        color:{text} !important;
+        fill:currentColor;
+        -webkit-text-fill-color:{text} !important;
+        opacity:1 !important;
+    }}
+    [data-testid='stPopover'] button:hover,
+    [data-testid='stPopover'] [data-baseweb='button']:hover {{
+        background-color:{hover} !important;
+        border-color:#4ECDC4 !important;
+    }}
+    /* กรณี Streamlit ใช้ popover container class ในเวอร์ชันใหม่ */
+    div[class*='stPopover'] button,
+    div[class*='stPopover'] button * {{color:{text} !important;-webkit-text-fill-color:{text} !important;}}
+    div[class*='stPopover'] button {{background:{panel} !important;border-color:{line} !important;}}
     /* ตัวเลือก ตัวกรอกข้อมูล และปุ่มลบที่ยังไม่ได้กด */
     [data-baseweb='input'] > div,[data-baseweb='select'] > div,
     [data-baseweb='textarea'] > div {{background:{panel} !important;color:{text} !important;border-color:{line} !important;}}
     [data-baseweb='input'] input,[data-baseweb='textarea'] textarea {{color:{text} !important;}}
     [data-testid='stCheckbox'] label span {{color:{text} !important;}}
     [data-testid='stCaptionContainer'] p {{color:{muted} !important;}}
+    /* ป้าย 'แสดงรายการ' และตัวเลือก ทั้งหมด/ยังไม่เสร็จ/เสร็จแล้ว ในโหมดมืด */
+    [data-testid='stSegmentedControl'] label,
+    [data-testid='stSegmentedControl'] > div > label,
+    [data-testid='stSegmentedControl'] p,
+    [data-testid='stSegmentedControl'] span,
+    [data-testid='stSegmentedControl'] button,
+    [data-testid='stSegmentedControl'] button * {{color:{text} !important;}}
+    [data-testid='stSegmentedControl'] button,
+    [data-testid='stSegmentedControl'] [role='radiogroup'] label {{background:{panel} !important;border-color:{line} !important;}}
+    [data-testid='stSegmentedControl'] button[aria-pressed='true'],
+    [data-testid='stSegmentedControl'] [role='radio'][aria-checked='true'],
+    [data-testid='stSegmentedControl'] [data-checked='true'] {{background:#4ECDC4 !important;color:#17343A !important;}}
+    [data-testid='stSegmentedControl'] button[aria-pressed='true'] *,
+    [data-testid='stSegmentedControl'] [role='radio'][aria-checked='true'] *,
+    [data-testid='stSegmentedControl'] [data-checked='true'] * {{color:#17343A !important;}}
+    /* ตัวหนังสือในป้ายของ widget ต้องไม่มืดกลืนพื้นหลัง */
+    [data-testid='stWidgetLabel'] p {{color:{text} !important;}}
+    [data-testid='stSegmentedControl'] [data-baseweb='button-group'] {{background:{panel} !important;border:1px solid {line} !important;border-radius:12px;}}
+    [data-testid='stSegmentedControl'] button:hover {{background:{hover} !important;}}
     /* ไม่บังคับให้ตัวหนังสือสีเดียวกับพื้นหลังในกล่องแจ้งเตือน */
     [data-testid='stAlert'] p {{color:inherit !important;}}
     .study-progress-track {{height:13px;width:100%;background:#D5EFEB;border-radius:99px;overflow:hidden;margin:11px 0 5px;}}
@@ -187,26 +235,6 @@ def readable_time(hours):
     return f'{m} นาที'
 
 
-def image_bytes(task):
-    """อ่านรูปที่เก็บใน JSON อย่างปลอดภัย (ถ้าไม่มีให้คืน None)."""
-    encoded = task.get('image_b64', '')
-    if not encoded:
-        return None
-    try:
-        return base64.b64decode(encoded, validate=True)
-    except (ValueError, base64.binascii.Error):
-        return None
-
-
-def subject_image(tasks, subject):
-    """ใช้ภาพล่าสุดที่ผู้ใช้ใส่ให้รายวิชาเดียวกัน."""
-    for task in reversed(tasks):
-        if task['subject'] == subject and image_bytes(task):
-            return image_bytes(task)
-    return None
-
-
-
 def normalize(items):
     if not isinstance(items, list):
         raise ValueError('ไฟล์ต้องเป็นรายการงาน JSON')
@@ -230,7 +258,7 @@ def normalize(items):
         if not t['subject'] or not t['name']:
             raise ValueError('ชื่อวิชาและชื่องานต้องไม่ว่าง')
         t['done'] = bool(t.get('done', False))
-        t['image_b64'] = str(t.get('image_b64', ''))
+        t.pop('image_b64', None)  # เลิกเก็บรูปในข้อมูลใหม่ แต่รองรับไฟล์สำรองเก่า
         t['subject_icon'] = str(t.get('subject_icon', ''))
         logs = t.get('logs', [])
         if not isinstance(logs, list):
@@ -295,7 +323,7 @@ def create_demo_tasks(existing, today=None):
                 'id': next_id, 'subject': subject, 'name': name,
                 'due': (today + timedelta(days=offset)).isoformat(),
                 'difficulty': difficulty, 'hours': hours, 'studied': 0.0,
-                'done': done, 'logs': [], 'image_b64': '', 'demo_key': key, 'subject_icon': '',
+                'done': done, 'logs': [], 'demo_key': key, 'subject_icon': '',
             })
             next_id += 1
     return generated
@@ -485,9 +513,6 @@ def render_subjects(items, prefix='home'):
     for subject, subject_tasks in groups.items():
         done = sum(t['done'] for t in subject_tasks)
         with st.expander(f'{icon_for_subject(subject, st.session_state.tasks)} {subject}  ·  {done}/{len(subject_tasks)} งานเสร็จ', expanded=len(groups) == 1):
-            picture = subject_image(st.session_state.tasks, subject)
-            if picture:
-                st.image(picture, width=150)
             for task in sorted(subject_tasks, key=lambda t: (t["done"], -priority_score(t), t["due"])):
                 render_task(task, prefix, ranks.get(task["id"]))
 
@@ -645,21 +670,17 @@ if page == '🏠 หน้าหลัก':
             with minute_col:
                 planned_m = st.number_input('เวลาที่คาดว่าจะใช้ (นาที)', 0, 59, 0, 5)
             hours = planned_h + planned_m / 60
-            uploaded_image = st.file_uploader('ภาพรายวิชา (ไม่บังคับ · JPG/PNG ไม่เกิน 600 KB)', type=['jpg','jpeg','png'])
             submitted = st.form_submit_button('＋ เพิ่มงาน', type='primary', use_container_width=True)
         if submitted:
             if not subject.strip() or not task_name.strip():
                 st.error('กรุณากรอกชื่อวิชาและชื่องาน')
             elif hours <= 0:
                 st.error('กรุณาระบุเวลาที่คาดว่าจะใช้อย่างน้อย 1 นาที')
-            elif uploaded_image is not None and uploaded_image.size > 600*1024:
-                st.error('ภาพต้องมีขนาดไม่เกิน 600 KB')
             else:
-                encoded = base64.b64encode(uploaded_image.getvalue()).decode('ascii') if uploaded_image else ''
                 new_task = {'id': max([t['id'] for t in tasks], default=0)+1,
                     'subject':subject.strip(), 'name':task_name.strip(), 'due':due.isoformat(),
                     'difficulty':difficulty, 'hours':float(hours), 'studied':0.0,
-                    'done':False, 'logs':[], 'image_b64':encoded, 'subject_icon':SUBJECT_ICONS[chosen_icon]}
+                    'done':False, 'logs':[], 'subject_icon':SUBJECT_ICONS[chosen_icon]}
                 commit([*tasks, new_task], 'เพิ่มงานสำเร็จ')
 
     filter_mode = st.segmented_control(
