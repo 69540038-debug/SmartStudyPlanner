@@ -3,44 +3,81 @@ import calendar
 import base64
 import html
 import json
+import random
 from datetime import date, timedelta
 from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-st.set_page_config(page_title='Smart Study Planner', page_icon='📚', layout='wide')
+st.set_page_config(page_title='Smart Study Planner', page_icon='🌟', layout='wide')
 DATA_FILE = Path(__file__).with_name('tasks.json')
 
-# โทนสีหลัก: charcoal, mint, white, coral, amber
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap');
-:root {--ink:#292F36;--mint:#4ECDC4;--coral:#FF6B6B;--amber:#F3AF50;--paper:#FFFFFF;}
-html,body,[data-testid="stAppViewContainer"],[data-testid="stSidebar"],button,input,textarea,select {font-family:'Prompt','Noto Sans Thai',sans-serif !important;}
-[data-testid="stAppViewContainer"] {background:linear-gradient(160deg,#F0FAF8 0%,#FFFFFF 52%,#FFF8EE 100%);color:var(--ink);}
-[data-testid="stSidebar"] {background:#292F36;}
-[data-testid="stSidebar"] * {color:white !important;}
-[data-testid="stSidebar"] [role="radiogroup"] label {border-radius:12px;padding:10px 12px;transition:background .2s ease,transform .2s ease;}
-[data-testid="stSidebar"] [role="radiogroup"] label:hover {background:#3D5558;transform:translateX(3px);}
-h1,h2,h3,h4 {color:#292F36 !important;letter-spacing:-.025em;}
-h1 {font-weight:700 !important;}
-h1,h2,h3 {transition:transform .22s ease,color .22s ease;}
-h1:hover,h2:hover,h3:hover {transform:translateX(5px);color:#149F96 !important;}
-[data-testid="stMetric"] {background:white;border:1px solid #DCEDE9;border-radius:18px;padding:15px;box-shadow:0 7px 20px #292F360B;}
-[data-testid="stMetricValue"] {color:#292F36;}
-[data-testid="stVerticalBlockBorderWrapper"] {border-radius:17px;}
-div.stButton > button, div.stFormSubmitButton > button, div.stDownloadButton > button {border-radius:12px;font-weight:600;transition:transform .17s ease,box-shadow .17s ease,background .17s ease;}
-div.stButton > button:hover, div.stFormSubmitButton > button:hover, div.stDownloadButton > button:hover {transform:translateY(-2px);box-shadow:0 5px 14px #292F3622;}
-div.stButton > button[kind="primary"],div.stFormSubmitButton > button[kind="primary"] {background:#4ECDC4;color:#17343A;border:1px solid #36BDB3;}
-div.stButton > button[kind="primary"]:hover,div.stFormSubmitButton > button[kind="primary"]:hover {background:#36BDB3;color:#142A30;}
-[data-testid="stProgress"] [role="progressbar"] > div {background:#4ECDC4 !important;}
-.stAlert {border-radius:13px;}
-.hero-panel {background:linear-gradient(115deg,#292F36,#324D50);border-radius:20px;padding:21px 24px;color:#FFFFFF;margin-bottom:12px;box-shadow:0 9px 26px #292F3620;}
-.hero-panel strong {color:#4ECDC4;font-size:1.2rem;}
-.hero-panel p {margin:5px 0 0;color:#E9F5F3;}
-@media (prefers-reduced-motion:reduce){h1,h2,h3,div.stButton > button,div.stFormSubmitButton > button{transition:none!important;transform:none!important;}}
-</style>
-""", unsafe_allow_html=True)
+# สีหลักจากธีมแฟนตาซี: charcoal / mint / coral / amber / white
+# ใช้ state เพื่อไม่ให้โหมดสว่าง/มืดเปลี่ยนเมื่อกดปุ่มอื่น
+if 'theme_mode' not in st.session_state:
+    st.session_state.theme_mode = '☀️ โหมดสว่าง'
+
+def theme_styles(dark):
+    bg = '#192832' if dark else '#F7FBFA'
+    panel = '#273941' if dark else '#FFFFFF'
+    text = '#F5FAFA' if dark else '#292F36'
+    muted = '#C4D6D6' if dark else '#52636B'
+    line = '#496068' if dark else '#D9ECE9'
+    hover = '#324A50' if dark else '#E8FAF7'
+    return f"""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Mali:wght@500;600;700&display=swap');
+    :root {{--ink:{text};--mint:#4ECDC4;--coral:#FF6B6B;--amber:#F3AF50;--paper:{panel};}}
+    html,body,[data-testid='stAppViewContainer'],[data-testid='stSidebar'],button,input,textarea,select {{font-family:'Prompt','Noto Sans Thai',sans-serif !important;}}
+    [data-testid='stAppViewContainer'] {{background:{bg};color:{text};}}
+    [data-testid='stAppViewContainer'] p,[data-testid='stAppViewContainer'] label,[data-testid='stAppViewContainer'] span,[data-testid='stAppViewContainer'] li {{color:{text};}}
+    [data-testid='stAppViewContainer'] small,[data-testid='stCaptionContainer'] p {{color:{muted} !important;}}
+    [data-testid='stSidebar'] {{background:#292F36;}}
+    [data-testid='stSidebar'] * {{color:white !important;}}
+    [data-testid='stSidebar'] [role='radiogroup'] label {{border-radius:12px;padding:10px 12px;transition:background .2s ease,transform .2s ease;}}
+    [data-testid='stSidebar'] [role='radiogroup'] label:hover {{background:#3D5558;transform:translateX(3px);}}
+    h1,h2,h3,h4 {{color:{text} !important;letter-spacing:-.02em;}}
+    h1,h2,h3 {{transition:transform .22s ease,color .22s ease;}}
+    h1:hover,h2:hover,h3:hover {{transform:translateX(5px);color:#4ECDC4 !important;}}
+    [data-testid='stMetric'],[data-testid='stVerticalBlockBorderWrapper'] {{background:{panel};border:1px solid {line};border-radius:17px;}}
+    [data-testid='stMetric'] {{padding:15px;}}
+    [data-testid='stMetricValue'],[data-testid='stMetricLabel'] {{color:{text} !important;}}
+    [data-testid='stExpander'] {{background:{panel};border:1px solid {line};border-radius:14px;}}
+    [data-testid='stExpander'] summary {{color:{text};}}
+    [data-testid='stDataFrame'] {{border-radius:12px;}}
+    div.stButton > button,div.stFormSubmitButton > button,div.stDownloadButton > button {{border-radius:13px;font-weight:600;transition:transform .17s ease,box-shadow .17s ease;}}
+    div.stButton > button:hover,div.stFormSubmitButton > button:hover,div.stDownloadButton > button:hover {{transform:translateY(-2px);box-shadow:0 6px 17px #4ECDC433;}}
+    div.stButton > button[kind='primary'],div.stFormSubmitButton > button[kind='primary'] {{background:#4ECDC4;color:#17343A;border:1px solid #36BDB3;}}
+    div.stButton > button[kind='primary']:hover,div.stFormSubmitButton > button[kind='primary']:hover {{background:#F3AF50;color:#292F36;border-color:#F3AF50;}}
+    div.stButton > button[kind='secondary'] {{background:{panel};color:{text};border:1px solid {line};}}
+    div.stButton > button[kind='secondary']:hover {{background:{hover};border-color:#4ECDC4;color:{text};}}
+    [data-testid='stProgress'] [role='progressbar'] > div {{background:#4ECDC4 !important;}}
+    .hero-panel {{background:linear-gradient(120deg,#292F36,#36535A);border:1px solid #4ECDC477;border-radius:22px;padding:24px 26px;margin:8px 0 16px;box-shadow:0 10px 30px #111A2430;position:relative;overflow:hidden;}}
+    .hero-panel::after {{content:'✦  ✧  ✦';position:absolute;right:18px;top:12px;color:#F3AF50;opacity:.65;letter-spacing:12px;font-size:21px;pointer-events:none;}}
+    .hero-panel strong {{color:#4ECDC4;font-family:'Mali','Prompt',sans-serif;font-size:clamp(1.08rem,2.2vw,1.5rem);line-height:1.6;display:block;max-width:85%;}}
+    .hero-panel p {{margin:8px 0 0;color:#F6F9F7 !important;line-height:1.75;}}
+    .stAlert {{border-radius:13px;}}
+    @media (prefers-reduced-motion:reduce) {{h1,h2,h3,div.stButton > button,div.stFormSubmitButton > button {{transition:none!important;transform:none!important;}}}}
+    </style>"""
+
+# คำคมเปลี่ยนเฉพาะเมื่อกลับมาหน้าหลัก ไม่เปลี่ยนทุกครั้งที่กดปุ่มในหน้าเดียวกัน
+QUOTES = [
+    ('ทุกความฝัน เริ่มจากหนึ่งหน้าที่ลงมืออ่าน', 'ก้าวเล็ก ๆ ในวันนี้ อาจกลายเป็นเรื่องราวยิ่งใหญ่ในวันหน้า'),
+    ('เรียนรู้วันนี้ เปล่งประกายในวันหน้า', 'ทุกบทเรียนคือดาวอีกดวงบนเส้นทางความฝัน'),
+    ('Little Steps, Big Dreams', 'ไม่ต้องรีบไปให้ถึง แค่ไม่หยุดเรียนรู้ก็พอ'),
+    ('เปิดหนังสือหนึ่งหน้า เข้าใกล้ความฝันอีกหนึ่งก้าว', 'ทำวันนี้ให้ดี แล้วค่อย ๆ เติบโตในจังหวะของเรา'),
+    ('Your Future Is Written Today', 'ทุกงานที่ลงมือทำ คือหนึ่งบรรทัดของอนาคต'),
+    ('ความสำเร็จเริ่มจากความตั้งใจเล็ก ๆ', 'เริ่มจากงานหนึ่งชิ้น แล้วให้ความพยายามพาไปต่อ'),
+    ('วันนี้อ่านอีกนิด พรุ่งนี้เก่งขึ้นอีกหน่อย', 'สะสมความรู้เหมือนเก็บดาวทีละดวง'),
+    ('อย่าให้เป้าหมายใหญ่ ทำให้ลืมก้าวแรก', 'เริ่มจากสิ่งที่ทำได้ในวันนี้'),
+    ('เติบโตไปพร้อมกับทุกบทเรียน', 'ไม่ต้องสมบูรณ์แบบ แค่เรียนรู้เพิ่มขึ้นทุกวัน'),
+    ('สร้างจักรวาลของตัวเองด้วยความรู้', 'ทุกวิชามีเรื่องใหม่ให้ค้นพบเสมอ'),
+]
+
+def next_quote():
+    previous = st.session_state.get('quote_index', -1)
+    options = [i for i in range(len(QUOTES)) if i != previous]
+    st.session_state.quote_index = random.choice(options)
 
 
 def image_bytes(task):
@@ -108,6 +145,52 @@ def normalize(items):
             raise ValueError('ประวัติการอ่านมากกว่าชั่วโมงที่อ่านสะสม')
         result.append(t)
     return result
+
+
+def create_demo_tasks(existing, today=None):
+    """สร้างงานตัวอย่าง 30 รายการ โดยไม่ลบงานจริงและไม่สร้างซ้ำ."""
+    today = today or date.today()
+    rng = random.Random(42631365)
+    examples = {
+        'ภาษาไทยเพื่อการสื่อสาร': [
+            'สรุปหลักการสื่อสารอย่างมีประสิทธิภาพ', 'แบบฝึกหัดการเขียนจดหมาย', 'เตรียมพูดนำเสนอหน้าชั้น', 'วิเคราะห์บทความสั้น'],
+        'ภาษาอังกฤษ': [
+            'ทบทวนคำศัพท์ Unit 4', 'แบบฝึกหัด Past Simple', 'ฝึกบทสนทนาการแนะนำตัว', 'อ่านบทความแล้วตอบคำถาม'],
+        'คณิตศาสตร์': [
+            'แบบฝึกหัดสมการเชิงเส้น', 'ทบทวนกราฟฟังก์ชัน', 'สรุปสถิติเบื้องต้น', 'เตรียมสอบย่อยบทที่ 3'],
+        'วิทยาศาสตร์': [
+            'สรุประบบนิเวศ', 'รายงานการทดลองเรื่องสารละลาย', 'ทำใบงานพลังงาน', 'ทบทวนการเปลี่ยนสถานะของสาร'],
+        'สังคมศาสตร์': [
+            'ใบงานบทที่ 5', 'สรุปหน้าที่พลเมือง', 'ทำแผนผังเศรษฐกิจพอเพียง', 'เตรียมอภิปรายประเด็นสังคม'],
+        'การเขียนโปรแกรม Python': [
+            'ฝึก if elif else', 'ฝึก for และ while', 'เขียนฟังก์ชัน def', 'ทดสอบโปรเจกต์ Streamlit'],
+        'การออกแบบและเทคโนโลยี': [
+            'ออกแบบโปสเตอร์ประชาสัมพันธ์', 'จัดทำผังงาน Flowchart', 'ปรับหน้าเว็บให้ใช้งานง่าย'],
+        'ประวัติศาสตร์': [
+            'สรุปเหตุการณ์สำคัญ', 'ทำเส้นเวลาประวัติศาสตร์', 'ตอบคำถามท้ายบท'],
+    }
+    existing_demo = {t.get('demo_key') for t in existing}
+    next_id = max((int(t['id']) for t in existing), default=0) + 1
+    generated = []
+    index = 0
+    for subject, names in examples.items():
+        for name in names:
+            index += 1
+            key = f'demo_2026_{index:02d}'
+            if key in existing_demo:
+                continue
+            offset = rng.randint(-5, 35)
+            difficulty = rng.randint(1, 5)
+            hours = rng.choice([0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0])
+            done = index in (2, 7, 12, 18, 23, 29)
+            generated.append({
+                'id': next_id, 'subject': subject, 'name': name,
+                'due': (today + timedelta(days=offset)).isoformat(),
+                'difficulty': difficulty, 'hours': hours, 'studied': 0.0,
+                'done': done, 'logs': [], 'image_b64': '', 'demo_key': key,
+            })
+            next_id += 1
+    return generated
 
 
 def load_tasks():
@@ -289,21 +372,49 @@ tasks = st.session_state.tasks
 if 'navigation' not in st.session_state:
     st.session_state.navigation = '🏠 หน้าหลัก'
 
-st.title('📚 Smart Study Planner')
+st.sidebar.radio('🎨 รูปแบบสี', ['☀️ โหมดสว่าง', '🌙 โหมดมืด'], key='theme_mode')
+st.markdown(theme_styles(st.session_state.theme_mode == '🌙 โหมดมืด'), unsafe_allow_html=True)
+st.title('✦ Smart Study Planner')
 st.caption('วางแผนการเรียน · ติดตามความคืบหน้า · จัดงานตามรายวิชา')
 page = st.sidebar.radio('เมนู', ['🏠 หน้าหลัก', '📅 ปฏิทิน'], key='navigation')
+if 'quote_index' not in st.session_state:
+    next_quote()
+if 'last_page' not in st.session_state:
+    st.session_state.last_page = page
+elif page == '🏠 หน้าหลัก' and st.session_state.last_page != page:
+    next_quote()
+st.session_state.last_page = page
 if st.session_state.pop('flash', None):
     st.toast('บันทึกข้อมูลสำเร็จ ✓')
 
 if page == '🏠 หน้าหลัก':
-    st.markdown('<div class="hero-panel"><strong>จัดการการเรียนได้ในหน้าเดียว</strong><p>ดูงานวันนี้ เพิ่มงาน และทำเครื่องหมายเสร็จได้ทันที</p></div>', unsafe_allow_html=True)
+    quote_title, quote_desc = QUOTES[st.session_state.quote_index]
+    st.markdown(f'<div class="hero-panel"><strong>✧ {html.escape(quote_title)}</strong><p>{html.escape(quote_desc)}</p></div>', unsafe_allow_html=True)
     completed = sum(t['done'] for t in tasks)
     pending = [t for t in tasks if not t['done']]
+    # การ์ดสรุปคลิกได้: กรองรายการงานด้านล่างทันที
+    if 'task_filter' not in st.session_state:
+        st.session_state.task_filter = 'ทั้งหมด'
     a,b,c = st.columns(3)
-    a.metric('งานทั้งหมด', len(tasks))
-    b.metric('เสร็จแล้ว', completed)
-    c.metric('รอดำเนินการ', len(pending))
+    with a:
+        if st.button(f'📚 งานทั้งหมด\\n\\n{len(tasks)} รายการ', key='stat_all',
+                     use_container_width=True, type='primary' if st.session_state.task_filter == 'ทั้งหมด' else 'secondary'):
+            st.session_state.task_filter = 'ทั้งหมด'
+            st.rerun()
+    with b:
+        if st.button(f'✅ เสร็จแล้ว\\n\\n{completed} รายการ', key='stat_done',
+                     use_container_width=True, type='primary' if st.session_state.task_filter == 'เสร็จแล้ว' else 'secondary'):
+            st.session_state.task_filter = 'เสร็จแล้ว'
+            st.rerun()
+    with c:
+        if st.button(f'🕒 รอดำเนินการ\\n\\n{len(pending)} รายการ', key='stat_pending',
+                     use_container_width=True, type='primary' if st.session_state.task_filter == 'ยังไม่เสร็จ' else 'secondary'):
+            st.session_state.task_filter = 'ยังไม่เสร็จ'
+            st.rerun()
     st.progress(completed / len(tasks) if tasks else 0)
+    st.caption('กดการ์ดด้านบนเพื่อเลือกดูงานทั้งหมด งานที่เสร็จแล้ว หรืองานที่ยังค้าง')
+    st.markdown('<div id="task-list"></div>', unsafe_allow_html=True)
+    st.markdown('[↓ ไปยังรายการงาน](#my-subjects)')
 
     action1, action2 = st.columns(2)
     with action1:
@@ -353,7 +464,22 @@ if page == '🏠 หน้าหลัก':
     else:
         st.success('วันนี้ไม่มีงานค้างตามแผน')
 
+    st.markdown('<div id="my-subjects"></div>', unsafe_allow_html=True)
     st.subheader('📝 งานและรายวิชาของฉัน')
+    with st.expander('🧪 ข้อมูลตัวอย่างสำหรับสาธิต (30 งาน)', expanded=False):
+        st.caption('สร้างงานจำลอง 30 รายการจาก 8 วิชา สุ่มวันส่ง ความยาก และชั่วโมงอ่าน มีตัวอย่างงานเสร็จแล้ว 6 รายการ ไม่ลบงานที่คุณมี')
+        demo_count = sum(bool(t.get('demo_key')) for t in tasks)
+        st.write(f'มีงานตัวอย่างอยู่แล้ว {demo_count}/30 รายการ')
+        if st.button('✨ เพิ่มงานตัวอย่างที่ยังไม่มี', key='seed_demo', type='primary'):
+            new_samples = create_demo_tasks(tasks)
+            if new_samples:
+                commit([*tasks, *new_samples], f'เพิ่มตัวอย่าง {len(new_samples)} งานแล้ว')
+            else:
+                st.info('มีข้อมูลตัวอย่างครบ 30 งานแล้ว')
+        if demo_count:
+            if st.button('🧹 ลบเฉพาะงานตัวอย่าง', key='clear_demo'):
+                commit([t for t in tasks if not t.get('demo_key')], 'ลบงานตัวอย่างแล้ว')
+
     with st.expander('➕ เพิ่มงานใหม่', expanded=not bool(tasks)):
         with st.form('add_task', clear_on_submit=True):
             subject = st.text_input('ชื่อวิชา', placeholder='เช่น ภาษาไทยเพื่อการสื่อสาร')
@@ -376,7 +502,10 @@ if page == '🏠 หน้าหลัก':
                     'done':False, 'logs':[], 'image_b64':encoded}
                 commit([*tasks, new_task], 'เพิ่มงานสำเร็จ')
 
-    filter_mode = st.segmented_control('แสดงรายการ', ['ทั้งหมด','ยังไม่เสร็จ','เสร็จแล้ว'], default='ทั้งหมด')
+    filter_mode = st.segmented_control(
+        'แสดงรายการ', ['ทั้งหมด','ยังไม่เสร็จ','เสร็จแล้ว'],
+        key='task_filter'
+    )
     visible = [t for t in tasks if filter_mode == 'ทั้งหมด' or
                (filter_mode == 'ยังไม่เสร็จ' and not t['done']) or
                (filter_mode == 'เสร็จแล้ว' and t['done'])]
