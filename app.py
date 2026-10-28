@@ -51,28 +51,32 @@ def theme_styles(dark):
     div.stButton > button[kind='primary']:hover,div.stFormSubmitButton > button[kind='primary']:hover {{background:#F3AF50;color:#292F36;border-color:#F3AF50;}}
     div.stButton > button[kind='secondary'] {{background:{panel};color:{text};border:1px solid {line};}}
     div.stButton > button[kind='secondary']:hover {{background:{hover};border-color:#4ECDC4;color:{text};}}
-    [data-testid='stProgress'] [role='progressbar'] > div {{background:#20A67A !important;}}
+    [data-testid='stProgress'] [role='progressbar'] {{background:#CDEEEA!important;border-radius:99px!important;}}
+    [data-testid='stProgress'] [role='progressbar'] > div {{background:#167C74!important;border-radius:99px!important;}}
     div[class*='st-key-home_done_'] button, div[class*='st-key-calendar_done_'] button, div[class*='st-key-focus_'] button {{background:#20A67A!important;color:white!important;border-color:#168963!important;}}
     div[class*='st-key-home_done_'] button:hover, div[class*='st-key-calendar_done_'] button:hover {{background:#168963!important;}}
     div[class*='st-key-home_del_'] button, div[class*='st-key-calendar_del_'] button {{background:#FF6B6B!important;color:white!important;border-color:#FF6B6B!important;}}
     div[class*='st-key-home_del_'] button:hover, div[class*='st-key-calendar_del_'] button:hover {{background:#DE4C4C!important;}}
     div[data-testid='stButton'] button:focus-visible {{outline:3px solid #F3AF50!important;outline-offset:2px;}}
+    div[class*='st-key-new_task_launcher'] button {{min-height:64px!important;font-size:1.16rem!important;background:#4ECDC4!important;color:#17343A!important;border:2px solid #2ABDB2!important;box-shadow:0 8px 18px #4ECDC444!important;}}
+    div[class*='st-key-new_task_launcher'] button:hover {{background:#F3AF50!important;border-color:#E89D33!important;}}
+    .weekday-name {{display:block;text-align:center;padding:9px 2px;border-radius:12px;font-weight:800;font-size:clamp(11px,1.25vw,16px);letter-spacing:.01em;}}
     .study-task-title {{font-size:1.08rem;font-weight:700;color:{text};background:{hover};border-left:5px solid #F3AF50;padding:10px 14px;border-radius:9px;margin-bottom:5px;}}
     .study-progress-label {{font-size:.84rem;color:{muted};margin-top:5px;}}
     
-    .hero-panel {{background:linear-gradient(120deg,#292F36,#36535A);border:1px solid #4ECDC477;border-radius:22px;padding:24px 26px;margin:8px 0 16px;box-shadow:0 10px 30px #111A2430;position:relative;overflow:hidden;}}
-    .hero-panel::after {{content:'✦  ✧  ✦';position:absolute;right:18px;top:12px;color:#F3AF50;opacity:.65;letter-spacing:12px;font-size:21px;pointer-events:none;}}
-    .quote-slide {{position:absolute;inset:0;padding:24px 26px;opacity:0;animation:quote-cycle 40s infinite;}}
-    .hero-panel {{min-height:140px;}}
+    .hero-panel {{display:none;}}
+
+    .dream-banner .quote-slide {{position:absolute;inset:0;padding:22px 30px;opacity:0;animation:quote-cycle 40s infinite;z-index:2;max-width:78%;pointer-events:none;}}
+
     .quote-slide:nth-child(1) {{animation-delay:0s;}}
     .quote-slide:nth-child(2) {{animation-delay:8s;}}
     .quote-slide:nth-child(3) {{animation-delay:16s;}}
     .quote-slide:nth-child(4) {{animation-delay:24s;}}
     .quote-slide:nth-child(5) {{animation-delay:32s;}}
     @keyframes quote-cycle {{0% {{opacity:0;transform:translateY(9px)}} 3%,17% {{opacity:1;transform:translateY(0)}} 20%,100% {{opacity:0;transform:translateY(-8px)}}}}
-    .hero-panel:hover .quote-slide {{animation-play-state:paused;}}
-    .hero-panel strong {{color:#4ECDC4;font-family:'Mali','Prompt',sans-serif;font-size:clamp(1.08rem,2.2vw,1.5rem);line-height:1.6;display:block;max-width:85%;}}
-    .hero-panel p {{margin:8px 0 0;color:#F6F9F7 !important;line-height:1.75;}}
+    .dream-banner:hover .quote-slide {{animation-play-state:paused;}}
+    .dream-banner .quote-slide strong {{color:#4ECDC4;font-family:'Mali','Prompt',sans-serif;font-size:clamp(1.08rem,2.2vw,1.5rem);line-height:1.6;display:block;max-width:85%;}}
+    .dream-banner .quote-slide p {{margin:8px 0 0;color:#F6F9F7 !important;line-height:1.75;}}
     /* Banner เคลื่อนไหวแบบเบา ๆ โดยไม่ต้องโหลดวิดีโอ */
     .dream-banner {{height:155px;position:relative;overflow:hidden;border-radius:22px;margin:12px 0 22px;background:radial-gradient(circle at 80% 30%,#315A66 0%,#292F36 53%,#172329 100%);border:1px solid #4ECDC480;box-shadow:0 10px 26px #12242A24;}}
     .dream-banner .orb {{position:absolute;border-radius:50%;border:1px solid #4ECDC475;width:205px;height:205px;right:11%;top:-43px;animation:orbit-float 12s ease-in-out infinite alternate;}}
@@ -80,7 +84,7 @@ def theme_styles(dark):
     .dream-banner .orb.two {{width:115px;height:115px;right:18%;top:14px;border-color:#FF6B6B99;animation-duration:9s;animation-direction:alternate-reverse;}}
     .dream-banner .orb.two::before {{background:#FF6B6B;width:12px;height:12px;top:8px;left:12px;}}
     .dream-banner .stars {{position:absolute;right:4%;top:17px;font-size:26px;letter-spacing:14px;color:#F3AF50;animation:star-shine 4s ease-in-out infinite alternate;}}
-    .dream-banner .banner-copy {{position:relative;z-index:1;padding:28px 30px;max-width:75%;}}
+    .dream-banner .banner-copy {{display:none;}}
     .dream-banner .banner-kicker {{color:#4ECDC4;font-weight:700;font-size:12px;letter-spacing:3px;}}
     .dream-banner .banner-title {{color:#FFFFFF;font-size:clamp(19px,2.7vw,31px);font-weight:700;line-height:1.45;margin-top:8px;}}
     .dream-banner .banner-sub {{color:#DDEBE9;font-size:12px;margin-top:7px;}}
@@ -94,7 +98,7 @@ def theme_styles(dark):
     .calendar-pill {{font-size:12px;font-weight:600;padding:6px 11px;border-radius:999px;background:{panel};color:{text};border:1px solid {line};}}
     .calendar-pill.study {{border-color:#4ECDC4;}} .calendar-pill.due {{border-color:#F3AF50;}} .calendar-pill.today {{border-color:#FF6B6B;}}
     .calendar-summary {{padding:14px 18px;border-radius:14px;background:{hover};border-left:4px solid #4ECDC4;margin:12px 0;}}
-    @media (max-width:640px) {{.dream-banner {{height:146px;}} .dream-banner .banner-copy {{max-width:90%;padding:22px 18px;}} .dream-banner .orb {{right:-60px;opacity:.5;}} div[class*='st-key-cal_'] button {{min-height:54px!important;font-size:11px!important;padding:4px!important;}}}}
+    @media (max-width:640px) {{.dream-banner .quote-slide {{max-width:90%;padding:20px 16px;}} .dream-banner {{height:146px;}} .dream-banner .banner-copy {{max-width:90%;padding:22px 18px;}} .dream-banner .orb {{right:-60px;opacity:.5;}} div[class*='st-key-cal_'] button {{min-height:54px!important;font-size:11px!important;padding:4px!important;}}}}
     .stAlert {{border-radius:13px;}}
     @media (prefers-reduced-motion:reduce) {{.dream-banner .orb,.dream-banner .stars {{animation:none!important;}} div[class*="st-key-cal_"] button {{transition:none!important;}} .quote-slide {{animation:none;opacity:0;}} .quote-slide:first-child {{opacity:1;}}h1,h2,h3,div.stButton > button,div.stFormSubmitButton > button {{transition:none!important;transform:none!important;}}}}
     </style>"""
@@ -393,7 +397,7 @@ def render_task(task, prefix, rank=None):
         else:
             pct = min(1.0, max(0.0, float(task['studied']) / max(float(task['hours']), 0.01)))
             st.progress(pct)
-            st.markdown(f'<div class="study-progress-label">🟢 อ่านแล้ว {readable_time(task["studied"])} ({pct:.0%}) · ⚪ เหลือ {readable_time(remaining_hours(task))}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="study-progress-label">🟩 สีเข้ม: อ่านแล้ว {readable_time(task["studied"])} ({pct:.0%}) · ◻️ สีอ่อน: เหลือ {readable_time(remaining_hours(task))}</div>', unsafe_allow_html=True)
         tools, delete_col = st.columns([3.8, 1.2], vertical_alignment='bottom')
         with tools:
             if not task['done']:
@@ -487,12 +491,12 @@ if st.session_state.pop('flash', None):
 if page == '🏠 หน้าหลัก':
     quote_order = [(st.session_state.quote_index + i) % len(QUOTES) for i in range(5)]
     slides = ''.join(f'<div class="quote-slide"><strong>✧ {html.escape(QUOTES[i][0])}</strong><p>{html.escape(QUOTES[i][1])}</p></div>' for i in quote_order)
-    st.markdown(f'<div class="hero-panel">{slides}</div>', unsafe_allow_html=True)
-    st.markdown('''''''''<div class="dream-banner" aria-label="แบนเนอร์ตกแต่งการเรียนรู้">
-      <div class="orb"></div><div class="orb two"></div><div class="stars">✦ ✧ ✦</div>
-      <div class="banner-copy"><div class="banner-kicker">YOUR STUDY UNIVERSE</div>
-      <div class="banner-title">Make today a little brighter ✦</div>
-      <div class="banner-sub">จัดการงานทีละนิด แล้วเติบโตในจังหวะของตัวเอง</div></div></div>''''''''', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="dream-banner" aria-label="คำคมการเรียนรู้เคลื่อนไหว">'
+        '<div class="orb"></div><div class="orb two"></div>'
+        '<div class="stars">✦ ✧ ✦</div>' + slides + '</div>',
+        unsafe_allow_html=True,
+    )
     completed = sum(t['done'] for t in tasks)
     pending = [t for t in tasks if not t['done']]
     # การ์ดสรุปคลิกได้: กรองรายการงานด้านล่างทันที
@@ -514,8 +518,7 @@ if page == '🏠 หน้าหลัก':
                      use_container_width=True, type='primary' if st.session_state.task_filter == 'ยังไม่เสร็จ' else 'secondary'):
             st.session_state.task_filter = 'ยังไม่เสร็จ'
             st.rerun()
-    st.progress(completed / len(tasks) if tasks else 0)
-    st.caption('กดการ์ดด้านบนเพื่อเลือกดูงานทั้งหมด งานที่เสร็จแล้ว หรืองานที่ยังค้าง')
+    st.caption('เลือกการ์ดด้านบนเพื่อกรองรายการงาน')
     st.markdown('<div id="task-list"></div>', unsafe_allow_html=True)
     st.markdown('[↓ ไปยังรายการงาน](#my-subjects)')
 
@@ -551,8 +554,12 @@ if page == '🏠 หน้าหลัก':
                 with c1:
                     (st.error if level == 'error' else st.warning)(f"{icon_for_subject(alert_task['subject'], tasks)} {alert_task['subject']} — {alert_task['name']}: {message}")
                 with c2:
-                    if st.button('ดูงาน', key=f'alert_open_{alert_task["id"]}', use_container_width=True):
-                        st.session_state.alert_selected = alert_task['id']
+                    if st.button('ดูงานในปฏิทิน', key=f'alert_open_{alert_task["id"]}', use_container_width=True):
+                        st.session_state.selected_day = alert_task['due']
+                        st.session_state.cal_month = date.fromisoformat(alert_task['due']).replace(day=1)
+                        st.session_state.calendar_target_task = alert_task['id']
+                        go_to_calendar()
+                        st.rerun()
             selected_alert = next((t for t in tasks if t['id'] == st.session_state.get('alert_selected') and not t['done']), None)
             if selected_alert:
                 st.markdown('#### 🔎 รายละเอียดงานที่เลือก')
@@ -594,7 +601,13 @@ if page == '🏠 หน้าหลัก':
             if st.button('🧹 ลบเฉพาะงานจากชุดเริ่มต้น', key='clear_demo'):
                 commit([t for t in tasks if not t.get('demo_key')], 'ลบรายการจากชุดเริ่มต้นแล้ว')
 
-    with st.expander('➕ เพิ่มงานใหม่', expanded=not bool(tasks)):
+    if 'show_add_form' not in st.session_state:
+        st.session_state.show_add_form = not bool(tasks)
+    if st.button('✦  เพิ่มงานใหม่  ·  Create a New Task', key='new_task_launcher', use_container_width=True, type='primary'):
+        st.session_state.show_add_form = not st.session_state.show_add_form
+    if st.session_state.show_add_form:
+        st.caption('กรอกข้อมูลด้านล่างเพื่อเพิ่มงานลงในรายวิชา')
+    with st.expander('📝 แบบฟอร์มเพิ่มงาน', expanded=st.session_state.show_add_form):
         with st.form('add_task', clear_on_submit=True):
             subject = st.text_input('ชื่อวิชา', placeholder='เช่น ภาษาไทยเพื่อการสื่อสาร')
             task_name = st.text_input('ชื่องาน', placeholder='เช่น แบบฝึกหัดบทที่ 2')
@@ -662,8 +675,20 @@ elif page == '📅 ปฏิทิน':
     for task in tasks:
         due_by_day.setdefault(task['due'], []).append(task)
     st.markdown('<div class="calendar-legend"><span class="calendar-pill study">● มิ้นต์: มีแผนอ่าน</span><span class="calendar-pill due">● ส้ม: วันกำหนดส่ง</span><span class="calendar-pill today">★ วันนี้</span></div>', unsafe_allow_html=True)
-    for col, label in zip(st.columns(7), ['จ','อ','พ','พฤ','ศ','ส','อา']):
-        col.markdown(f'**{label}**')
+    weekdays = [
+        ('Monday', '#F3AF50', '#292F36'),
+        ('Tuesday', '#FF9AC0', '#292F36'),
+        ('Wednesday', '#7AD5A4', '#173E32'),
+        ('Thursday', '#FFAF73', '#292F36'),
+        ('Friday', '#8FD9F7', '#173A4B'),
+        ('Saturday', '#B9A2F4', '#292F36'),
+        ('Sunday', '#FF6B6B', '#FFFFFF'),
+    ]
+    for col, (label, background, foreground) in zip(st.columns(7), weekdays):
+        col.markdown(
+            f'<span class="weekday-name" style="background:{background};color:{foreground}">{label}</span>',
+            unsafe_allow_html=True,
+        )
     for week in calendar.monthcalendar(first.year, first.month):
         cols = st.columns(7, gap='small')
         for i, day in enumerate(week):
@@ -682,6 +707,7 @@ elif page == '📅 ปฏิทิน':
                 if st.button(f'{day}{suffix}', key=f'cal_{key}', use_container_width=True,
                     type='primary' if st.session_state.get('selected_day') == key else 'secondary'):
                     st.session_state.selected_day = key
+                    st.session_state.calendar_target_task = None
                     st.rerun()
     chosen = st.session_state.get('selected_day', date.today().isoformat())
     selected = date.fromisoformat(chosen)
@@ -699,9 +725,12 @@ elif page == '📅 ปฏิทิน':
         st.markdown(f"🔔 กำหนดส่ง **{html.escape(task['subject'])} — {html.escape(task['name'])}**" + (' · ✅ เสร็จแล้ว' if task['done'] else ''))
     if rows or dues:
         unique_ids = list(dict.fromkeys([r['id'] for r in rows]+[t['id'] for t in dues]))
-        with st.expander('🔎 เปิดรายละเอียดและทำเครื่องหมายงาน', expanded=False):
+        target_id = st.session_state.get('calendar_target_task')
+        with st.expander('🔎 เปิดรายละเอียดและทำเครื่องหมายงาน', expanded=target_id in unique_ids):
             for task in tasks:
                 if task['id'] in unique_ids:
+                    if task['id'] == target_id:
+                        st.info(f'กำลังดูงาน: {task["subject"]} — {task["name"]}')
                     render_task(task, f'calendar_{chosen}')
     st.button('🏠 ไปจัดการงานบนหน้าหลัก', type='primary', on_click=go_to_home)
     if any(r['late'] for r in schedule):
