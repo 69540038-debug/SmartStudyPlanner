@@ -140,7 +140,7 @@ def theme_styles(dark):
     div[class*='st-key-home_del_'] button, div[class*='st-key-calendar_del_'] button {{background:#FF6B6B!important;color:white!important;border-color:#FF6B6B!important;}}
     div[class*='st-key-home_del_'] button:hover, div[class*='st-key-calendar_del_'] button:hover {{background:#DE4C4C!important;}}
     div[data-testid='stButton'] button:focus-visible {{outline:3px solid #F3AF50!important;outline-offset:2px;}}
-    div[class*='st-key-new_task_launcher'] button {{min-height:64px!important;font-size:1.16rem!important;background:#4ECDC4!important;color:#17343A!important;border:2px solid #2ABDB2!important;box-shadow:0 8px 18px #4ECDC444!important;}}
+    div[class*='st-key-new_task_launcher'] button {{min-height:72px!important;font-size:1.4rem!important;background:#4ECDC4!important;color:#17343A!important;border:2px solid #2ABDB2!important;box-shadow:0 8px 18px #4ECDC444!important;}}
     div[class*='st-key-new_task_launcher'] button:hover {{background:#F3AF50!important;border-color:#E89D33!important;}}
     .weekday-name {{display:block;text-align:center;padding:9px 2px;border-radius:12px;font-weight:800;font-size:clamp(11px,1.25vw,16px);letter-spacing:.01em;}}
     .study-task-title {{font-size:1.08rem;font-weight:700;color:{text};background:{hover};border-left:5px solid #F3AF50;padding:10px 14px;border-radius:9px;margin-bottom:5px;}}
@@ -229,6 +229,11 @@ def theme_styles(dark):
     @keyframes ssp-twinkle {{0%,100%{{opacity:.5;transform:scale(.88)}}50%{{opacity:1;transform:scale(1.13)}}}}
     @media(max-width:640px) {{.ssp-brand{{padding:17px 16px;gap:12px;border-radius:17px;}}.ssp-brand-mark{{width:46px;height:46px;flex-basis:46px;font-size:23px;border-radius:14px;}}.ssp-brand-spark{{right:10px;bottom:7px;font-size:17px;}}}}
     @media(prefers-reduced-motion:reduce) {{.ssp-brand-mark,.ssp-brand-spark{{animation:none!important;}}}}
+    /* Visual hierarchy for task sections, without changing application data */
+    .study-section-title {{display:flex;align-items:center;gap:12px;padding:13px 17px;margin:0 0 9px;border-radius:13px;background:linear-gradient(100deg,{hover},{panel});border-left:6px solid #4ECDC4;color:{text};font-weight:800;font-size:clamp(1.2rem,2vw,1.55rem);line-height:1.5;}}
+    .study-section-note {{font-size:.91rem;color:{muted};margin:0 0 16px 4px;line-height:1.7;}}
+    div[class*='st-key-new_task_launcher'] button p,div[class*='st-key-new_task_launcher'] button span {{font-size:1.4rem!important;font-weight:800!important;letter-spacing:.01em!important;line-height:1.5!important;color:#17343A!important;}}
+    @media(max-width:640px) {{div[class*='st-key-new_task_launcher'] button p,div[class*='st-key-new_task_launcher'] button span {{font-size:1.13rem!important;}}}}
     </style>"""
 
 # คำคมเปลี่ยนเฉพาะเมื่อกลับมาหน้าหลัก ไม่เปลี่ยนทุกครั้งที่กดปุ่มในหน้าเดียวกัน
@@ -622,11 +627,6 @@ if page == '🏠 หน้าหลัก':
         '<div class="stars">✦ ✧ ✦</div>' + slides + '</div>',
         unsafe_allow_html=True,
     )
-    st.markdown(
-        '<div class="dashboard-intro"><strong>✦ แดชบอร์ดการเรียนของฉัน</strong>'
-        '<span>ติดตามงาน ความคืบหน้า และแผนการอ่านได้ในหน้าเดียว</span></div>',
-        unsafe_allow_html=True,
-    )
     completed = sum(t['done'] for t in tasks)
     pending = [t for t in tasks if not t['done']]
     # คลิกการ์ดแล้วรายการที่กรองจะแสดงใต้การ์ดทันที (ไม่ต้องเลื่อนหาด้านล่าง)
@@ -713,25 +713,26 @@ if page == '🏠 หน้าหลัก':
                 st.caption(selected_alert['subject'])
                 render_task(selected_alert, 'alert')
 
-    st.subheader('🎯 Today Focus · งานที่ควรทำวันนี้')
-    st.caption('ระบบให้ความสำคัญกับวันกำหนดส่งก่อน แล้วจึงพิจารณาความยากและเวลาที่ต้องใช้')
-    daily_hours = st.session_state.get('daily_hours', 2.0)
-    schedule, _ = build_schedule(tasks, daily_hours, today)
-    focus = [r for r in schedule if r['date'] == today.isoformat()]
-    if focus:
-        for row in focus[:3]:
-            task = next(t for t in tasks if t['id'] == row['id'])
-            with st.container(border=True):
-                col1,col2 = st.columns([4,1], vertical_alignment='center')
-                with col1:
-                    st.markdown(f"**{icon_for_subject(task['subject'], tasks)} {html.escape(task['subject'])} — {html.escape(task['name'])}**")
-                    st.caption(f"แนะนำวันนี้ {readable_time(row['hours'])} · กำหนดส่ง {task['due']}")
-                with col2:
-                    if st.button('✓ เสร็จแล้ว', key=f'focus_{task["id"]}', type='primary', use_container_width=True):
-                        toggle_done(task['id'])
-        st.caption('บันทึกเวลาอ่านบางส่วนได้ที่หัวข้อรายวิชาด้านล่าง')
-    else:
-        st.success('วันนี้ไม่มีงานค้างตามแผน')
+    with st.container(border=True):
+        st.markdown('<div class="study-section-title">🎯 Today Focus · งานที่ควรทำวันนี้</div>', unsafe_allow_html=True)
+        st.markdown('<div class="study-section-note">ระบบให้ความสำคัญกับวันกำหนดส่งก่อน แล้วจึงพิจารณาความยากและเวลาที่ต้องใช้</div>', unsafe_allow_html=True)
+        daily_hours = st.session_state.get('daily_hours', 2.0)
+        schedule, _ = build_schedule(tasks, daily_hours, today)
+        focus = [r for r in schedule if r['date'] == today.isoformat()]
+        if focus:
+            for row in focus[:3]:
+                task = next(t for t in tasks if t['id'] == row['id'])
+                with st.container(border=True):
+                    col1,col2 = st.columns([4,1], vertical_alignment='center')
+                    with col1:
+                        st.markdown(f"**{icon_for_subject(task['subject'], tasks)} {html.escape(task['subject'])} — {html.escape(task['name'])}**")
+                        st.caption(f"แนะนำวันนี้ {readable_time(row['hours'])} · กำหนดส่ง {task['due']}")
+                    with col2:
+                        if st.button('✓ เสร็จแล้ว', key=f'focus_{task["id"]}', type='primary', use_container_width=True):
+                            toggle_done(task['id'])
+            st.caption('บันทึกเวลาอ่านบางส่วนได้ที่หัวข้อรายวิชาด้านล่าง')
+        else:
+            st.success('วันนี้ไม่มีงานค้างตามแผน')
 
     # แยกสรุปเวลาอ่านจริงออกจากรายการรายวิชาอย่างชัดเจน
     st.markdown('### 📈 ภาพรวมการอ่านของฉัน')
@@ -783,15 +784,16 @@ if page == '🏠 หน้าหลัก':
     # รายการงานถูกวางไว้ใต้การ์ดสรุปด้านบน เพื่อให้คลิกแล้วเห็นผลทันที
     with filtered_list_area:
         st.markdown('<div id="my-subjects"></div>', unsafe_allow_html=True)
-        st.subheader('📚 รายการงานตามสถานะ')
-        filter_mode = st.segmented_control(
-            'แสดงรายการ', ['ทั้งหมด','ยังไม่เสร็จ','เสร็จแล้ว'],
-            key='task_filter'
-        )
-        visible = [t for t in tasks if filter_mode == 'ทั้งหมด' or
-                   (filter_mode == 'ยังไม่เสร็จ' and not t['done']) or
-                   (filter_mode == 'เสร็จแล้ว' and t['done'])]
-        render_subjects(visible)
+        with st.container(border=True):
+            st.markdown('<div class="study-section-title">📚 รายการงานตามสถานะ</div>', unsafe_allow_html=True)
+            filter_mode = st.segmented_control(
+                'แสดงรายการ', ['ทั้งหมด','ยังไม่เสร็จ','เสร็จแล้ว'],
+                key='task_filter'
+            )
+            visible = [t for t in tasks if filter_mode == 'ทั้งหมด' or
+                       (filter_mode == 'ยังไม่เสร็จ' and not t['done']) or
+                       (filter_mode == 'เสร็จแล้ว' and t['done'])]
+            render_subjects(visible)
 
 
 elif page == '📅 ปฏิทิน':
