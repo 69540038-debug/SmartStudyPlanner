@@ -30,7 +30,7 @@ def theme_styles(dark):
     :root {{--ink:{text};--mint:#4ECDC4;--coral:#FF6B6B;--amber:#F3AF50;--paper:{panel};}}
     html,body,[data-testid='stAppViewContainer'],[data-testid='stSidebar'],button,input,textarea,select {{font-family:'Prompt','Noto Sans Thai',sans-serif !important;}}
     [data-testid='stAppViewContainer'] {{background:{bg};color:{text};}}
-    [data-testid='stAppViewContainer'] p,[data-testid='stAppViewContainer'] label,[data-testid='stAppViewContainer'] span,[data-testid='stAppViewContainer'] li {{color:{text};}}
+    [data-testid='stAppViewContainer'] .stMarkdown p,[data-testid='stAppViewContainer'] .stMarkdown li {{color:{text};}}
     [data-testid='stAppViewContainer'] small,[data-testid='stCaptionContainer'] p {{color:{muted} !important;}}
     [data-testid='stSidebar'] {{background:#292F36;}}
     [data-testid='stSidebar'] * {{color:white !important;}}
@@ -51,6 +51,36 @@ def theme_styles(dark):
     div.stButton > button[kind='primary']:hover,div.stFormSubmitButton > button[kind='primary']:hover {{background:#F3AF50;color:#292F36;border-color:#F3AF50;}}
     div.stButton > button[kind='secondary'] {{background:{panel};color:{text};border:1px solid {line};}}
     div.stButton > button[kind='secondary']:hover {{background:{hover};border-color:#4ECDC4;color:{text};}}
+    /* ให้ข้อความในปุ่มและส่วนโต้ตอบมี contrast ตามโหมด */
+    [data-testid='stAppViewContainer'] button[kind='secondary'] *,
+    [data-testid='stAppViewContainer'] button[kind='secondary'] p,
+    [data-testid='stAppViewContainer'] button[kind='secondary'] span {{color:{text} !important;}}
+    [data-testid='stAppViewContainer'] button[kind='primary'] *,
+    [data-testid='stAppViewContainer'] button[kind='primary'] p,
+    [data-testid='stAppViewContainer'] button[kind='primary'] span {{color:#17343A !important;}}
+    /* Expander: แถบหัวข้อไม่ควรเป็นสีขาวในโหมดมืด */
+    [data-testid='stExpander'] details,
+    [data-testid='stExpander'] details > summary,
+    [data-testid='stExpander'] [data-testid='stExpanderDetails'] {{background:{panel} !important;color:{text} !important;}}
+    [data-testid='stExpander'] summary *,
+    [data-testid='stExpander'] summary p,
+    [data-testid='stExpander'] summary svg {{color:{text} !important;fill:currentColor;}}
+    /* ปุ่ม popover และกล่องที่เปิดขึ้นมา */
+    [data-testid='stPopover'] > button {{background:{panel} !important;color:{text} !important;border:1px solid {line} !important;}}
+    [data-testid='stPopover'] > button * {{color:{text} !important;}}
+    [data-testid='stPopoverBody'],[data-testid='stPopoverBody'] > div,
+    [data-baseweb='popover'] [data-baseweb='popover-content'],
+    [data-baseweb='popover'] [data-baseweb='popover-content'] > div {{background:{panel} !important;color:{text} !important;}}
+    [data-testid='stPopoverBody'] p,[data-testid='stPopoverBody'] label,
+    [data-testid='stPopoverBody'] span {{color:{text} !important;}}
+    /* ตัวเลือก ตัวกรอกข้อมูล และปุ่มลบที่ยังไม่ได้กด */
+    [data-baseweb='input'] > div,[data-baseweb='select'] > div,
+    [data-baseweb='textarea'] > div {{background:{panel} !important;color:{text} !important;border-color:{line} !important;}}
+    [data-baseweb='input'] input,[data-baseweb='textarea'] textarea {{color:{text} !important;}}
+    [data-testid='stCheckbox'] label span {{color:{text} !important;}}
+    [data-testid='stCaptionContainer'] p {{color:{muted} !important;}}
+    /* ไม่บังคับให้ตัวหนังสือสีเดียวกับพื้นหลังในกล่องแจ้งเตือน */
+    [data-testid='stAlert'] p {{color:inherit !important;}}
     .study-progress-track {{height:13px;width:100%;background:#D5EFEB;border-radius:99px;overflow:hidden;margin:11px 0 5px;}}
     .study-progress-fill {{height:100%;background:#167C74;border-radius:99px 0 0 99px;transition:width .3s ease;}}
     .study-progress-legend {{display:flex;gap:16px;flex-wrap:wrap;color:{muted};font-size:.81rem;margin:5px 0 8px;}}
@@ -92,6 +122,10 @@ def theme_styles(dark):
     div[class*='st-key-cal_'] button {{min-height:61px!important;border-radius:14px!important;border:1px solid {line}!important;background:{panel}!important;color:{text}!important;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important;}}
     div[class*='st-key-cal_'] button:hover {{transform:translateY(-3px)!important;border-color:#4ECDC4!important;box-shadow:0 6px 15px #4ECDC433!important;}}
     div[class*='st-key-cal_'] button[kind='primary'] {{background:#4ECDC4!important;color:#17343A!important;border-color:#36BDB3!important;font-weight:700!important;}}
+    /* วันนี้: ขอบสีส้มทองแม้ยังไม่ได้เลือก; วันที่เลือก: สีมิ้นต์ */
+    div[class*='st-key-cal_'][class*='-today'] button {{border:3px solid #F3AF50!important;box-shadow:0 0 0 2px #F3AF5040!important;}}
+    div[class*='st-key-cal_'][class*='-today'] button:hover {{border-color:#F3AF50!important;}}
+    div[class*='st-key-cal_'][class*='-today'] button[kind='primary'] {{background:#4ECDC4!important;border:3px solid #F3AF50!important;}}
     .calendar-legend {{display:flex;gap:9px;flex-wrap:wrap;margin:8px 0 14px;}}
     .calendar-pill {{font-size:12px;font-weight:600;padding:6px 11px;border-radius:999px;background:{panel};color:{text};border:1px solid {line};}}
     .calendar-pill.study {{border-color:#4ECDC4;}} .calendar-pill.due {{border-color:#F3AF50;}} .calendar-pill.today {{border-color:#FF6B6B;}}
@@ -695,7 +729,7 @@ elif page == '📅 ปฏิทิน':
                     suffix += f' 📖{readable_time(hours_today)}'
                 if due_count:
                     suffix += f' 🟠{due_count}'
-                if st.button(f'{day}{suffix}', key=f'cal_{key}', use_container_width=True,
+                if st.button(f'{day}{suffix}', key=f'cal_{key}' + ('-today' if key == date.today().isoformat() else ''), use_container_width=True,
                     type='primary' if st.session_state.get('selected_day') == key else 'secondary'):
                     st.session_state.selected_day = key
                     st.session_state.calendar_target_task = None
