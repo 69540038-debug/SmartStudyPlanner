@@ -181,10 +181,10 @@ def theme_styles(dark):
     @media (max-width:640px) {{.dream-banner .quote-slide {{width:95%;padding:20px 16px;}} .dream-banner {{height:146px;}} .dream-banner .banner-copy {{max-width:90%;padding:22px 18px;}} .dream-banner .orb {{right:-60px;opacity:.5;}} div[class*='st-key-cal_'] button {{min-height:54px!important;font-size:11px!important;padding:4px!important;}}}}
     .stAlert {{border-radius:13px;}}
     @media (prefers-reduced-motion:reduce) {{.dream-banner .orb,.dream-banner .stars {{animation:none!important;}} div[class*="st-key-cal_"] button {{transition:none!important;}} .quote-slide {{animation:none;opacity:0;}} .quote-slide:first-child {{opacity:1;}}h1,h2,h3,div.stButton > button,div.stFormSubmitButton > button {{transition:none!important;transform:none!important;}}}}
-    .deadline-banner {background:linear-gradient(115deg,#FFF0DB,#FFE1DD);border:2px solid #F3AF50;border-left:7px solid #FF6B6B;border-radius:17px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin:18px 0 10px;color:#292F36;box-shadow:0 5px 16px #F3AF5026;}
-    .deadline-banner strong {display:block;font-size:1.12rem;color:#292F36 !important;}
-    .deadline-banner span {display:block;font-size:.86rem;color:#674D44 !important;margin-top:3px;}
-    .deadline-bell {font-size:1.65rem;}
+    .deadline-banner {{background:linear-gradient(115deg,#FFF0DB,#FFE1DD);border:2px solid #F3AF50;border-left:7px solid #FF6B6B;border-radius:17px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin:18px 0 10px;color:#292F36;box-shadow:0 5px 16px #F3AF5026;}}
+    .deadline-banner strong {{display:block;font-size:1.12rem;color:#292F36 !important;}}
+    .deadline-banner span {{display:block;font-size:.86rem;color:#674D44 !important;margin-top:3px;}}
+    .deadline-bell {{font-size:1.65rem;}}
     </style>"""
 
 # คำคมเปลี่ยนเฉพาะเมื่อกลับมาหน้าหลัก ไม่เปลี่ยนทุกครั้งที่กดปุ่มในหน้าเดียวกัน
