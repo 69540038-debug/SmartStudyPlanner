@@ -925,12 +925,19 @@ elif page == '📘 คู่มือใช้งาน':
         st.write('ใช้สวิตช์ด้านขวาบนของเว็บไซต์เพื่อเปลี่ยนโหมดสีได้ตามต้องการ')
 
     st.markdown('### 🎬 วิดีโอแนะนำการใช้งาน')
-    st.caption('วิดีโอสรุปขั้นตอน 1–2 นาที ใช้ประกอบการสาธิตโปรเจกต์')
+    st.caption('วิดีโอสาธิตการใช้งาน Smart Study Planner')
     video_path = Path(__file__).with_name('study_guide.mp4')
     if video_path.exists():
-        st.video(str(video_path))
+        # ส่งข้อมูล MP4 โดยตรงให้เบราว์เซอร์ แทนการใช้เส้นทางไฟล์บนเซิร์ฟเวอร์
+        st.markdown('''<style>
+        div[data-testid="stVideo"] { max-width: 800px; margin: 0 auto; }
+        div[data-testid="stVideo"] video { width: 100% !important; height: auto !important; aspect-ratio: 16 / 9; object-fit: contain; border-radius: 14px; }
+        </style>''', unsafe_allow_html=True)
+        _, video_col, _ = st.columns([1, 8, 1])
+        with video_col:
+            st.video(video_path.read_bytes(), format='video/mp4')
     else:
-        st.info('เพิ่มไฟล์ study_guide.mp4 ลงใน GitHub เพื่อแสดงวิดีโอในหน้านี้ หรือใช้คู่มือข้อความด้านบนได้ทันที')
+        st.info('เพิ่มไฟล์ study_guide.mp4 ลงใน GitHub ในโฟลเดอร์เดียวกับ app.py เพื่อแสดงวิดีโอ')
     col_home, col_calendar = st.columns(2)
     col_home.button('🏠 เริ่มเพิ่มงาน', on_click=go_to_home, use_container_width=True, type='primary')
     col_calendar.button('📅 เปิดปฏิทิน', on_click=go_to_calendar, use_container_width=True)
