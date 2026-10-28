@@ -181,6 +181,10 @@ def theme_styles(dark):
     @media (max-width:640px) {{.dream-banner .quote-slide {{width:95%;padding:20px 16px;}} .dream-banner {{height:146px;}} .dream-banner .banner-copy {{max-width:90%;padding:22px 18px;}} .dream-banner .orb {{right:-60px;opacity:.5;}} div[class*='st-key-cal_'] button {{min-height:54px!important;font-size:11px!important;padding:4px!important;}}}}
     .stAlert {{border-radius:13px;}}
     @media (prefers-reduced-motion:reduce) {{.dream-banner .orb,.dream-banner .stars {{animation:none!important;}} div[class*="st-key-cal_"] button {{transition:none!important;}} .quote-slide {{animation:none;opacity:0;}} .quote-slide:first-child {{opacity:1;}}h1,h2,h3,div.stButton > button,div.stFormSubmitButton > button {{transition:none!important;transform:none!important;}}}}
+    .deadline-banner {background:linear-gradient(115deg,#FFF0DB,#FFE1DD);border:2px solid #F3AF50;border-left:7px solid #FF6B6B;border-radius:17px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin:18px 0 10px;color:#292F36;box-shadow:0 5px 16px #F3AF5026;}
+    .deadline-banner strong {display:block;font-size:1.12rem;color:#292F36 !important;}
+    .deadline-banner span {display:block;font-size:.86rem;color:#674D44 !important;margin-top:3px;}
+    .deadline-bell {font-size:1.65rem;}
     </style>"""
 
 # คำคมเปลี่ยนเฉพาะเมื่อกลับมาหน้าหลัก ไม่เปลี่ยนทุกครั้งที่กดปุ่มในหน้าเดียวกัน
@@ -509,12 +513,13 @@ def render_subjects(items, prefix='home'):
     groups = grouped_subjects(items)
     if not groups:
         st.info('ยังไม่มีงาน กดเพิ่มงานเพื่อเริ่มต้น')
-    ranks = {t['id']: i for i, t in enumerate(sorted([t for t in items if not t['done']], key=lambda t: (-priority_score(t), t['due'], t['id'])), 1)}
     for subject, subject_tasks in groups.items():
         done = sum(t['done'] for t in subject_tasks)
+        # ลำดับงานเริ่มที่ 1 ใหม่ทุกวิชา ไม่ใช้ลำดับรวมทั้งเว็บไซต์
+        ordered = sorted(subject_tasks, key=lambda t: (t['done'], -priority_score(t), t['due'], t['id']))
         with st.expander(f'{icon_for_subject(subject, st.session_state.tasks)} {subject}  ·  {done}/{len(subject_tasks)} งานเสร็จ', expanded=len(groups) == 1):
-            for task in sorted(subject_tasks, key=lambda t: (t["done"], -priority_score(t), t["due"])):
-                render_task(task, prefix, ranks.get(task["id"]))
+            for subject_rank, task in enumerate(ordered, start=1):
+                render_task(task, prefix, subject_rank)
 
 
 def go_to_calendar(task_id=None, due=None):
@@ -613,8 +618,16 @@ if page == '🏠 หน้าหลัก':
     today = date.today()
     alerts = deadline_alerts(tasks, today)
     if alerts:
-        with st.expander(f'🔔 งานใกล้กำหนด · {len(alerts)} รายการ', expanded=True):
-            st.caption('กด “ดูงาน” เพื่อเปิดรายละเอียดและจัดการได้ทันที')
+        overdue_count = sum(level == 'error' for level, _, _ in alerts)
+        st.markdown(
+            f'<div class="deadline-banner"><div class="deadline-bell">🔔</div>'
+            f'<div><strong>งานที่ต้องติดตาม {len(alerts)} รายการ</strong>'
+            f'<span>ใกล้กำหนดส่งและเลยกำหนด'
+            f'{f" · เลยกำหนด {overdue_count} งาน" if overdue_count else ""}</span></div></div>',
+            unsafe_allow_html=True
+        )
+        with st.expander('📋 เปิดดูงานเร่งด่วนและรายละเอียด', expanded=True):
+            st.caption('กดปุ่ม “ดูงานในปฏิทิน” เพื่อเปิดวันที่และรายละเอียดงานนั้น')
             for level, alert_task, message in alerts:
                 c1, c2 = st.columns([5, 1], vertical_alignment='center')
                 with c1:
@@ -647,6 +660,16 @@ if page == '🏠 หน้าหลัก':
         st.caption('บันทึกเวลาอ่านบางส่วนได้ที่หัวข้อรายวิชาด้านล่าง')
     else:
         st.success('วันนี้ไม่มีงานค้างตามแผน')
+
+    # แยกสรุปเวลาอ่านจริงออกจากรายการรายวิชาอย่างชัดเจน
+    st.markdown('### 📈 ภาพรวมการอ่านของฉัน')
+    with st.expander('ดูสรุปเวลาอ่านจริงใน 7 วันล่าสุด', expanded=False):
+        progress_rows = week_progress(tasks, today)
+        total_week = sum(row['ชั่วโมง'] for row in progress_rows)
+        st.metric('เวลาอ่านจริงรวม 7 วัน', readable_time(total_week))
+        st.bar_chart(pd.DataFrame(progress_rows).set_index('วันที่'), color='#4ECDC4')
+        st.caption('แสดงเฉพาะเวลาที่บันทึกจริงพร้อมวันที่ ไม่ใช่ชั่วโมงที่วางแผน')
+    st.divider()
 
     st.markdown('<div id="my-subjects"></div>', unsafe_allow_html=True)
     st.subheader('📝 งานและรายวิชาของฉัน')
@@ -692,12 +715,6 @@ if page == '🏠 หน้าหลัก':
                (filter_mode == 'เสร็จแล้ว' and t['done'])]
     render_subjects(visible)
 
-    with st.expander('📈 สรุปเวลาอ่านจริง 7 วันล่าสุด'):
-        progress_rows = week_progress(tasks, today)
-        total_week = sum(row['ชั่วโมง'] for row in progress_rows)
-        st.metric('ชั่วโมงที่อ่านใน 7 วัน', f'{total_week:g} ชม.')
-        st.bar_chart(pd.DataFrame(progress_rows).set_index('วันที่'), color='#4ECDC4')
-        st.caption('กราฟนี้นับเฉพาะประวัติที่มีวันที่บันทึก')
 
 elif page == '📅 ปฏิทิน':
     st.subheader('📅 ปฏิทินการเรียน')
