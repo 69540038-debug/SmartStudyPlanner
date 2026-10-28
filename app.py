@@ -1,6 +1,7 @@
 import json
+import calendar
+from datetime import date
 from pathlib import Path
-from datetime import date, datetime
 import streamlit as st
 import pandas as pd
 
@@ -31,13 +32,71 @@ def priority_label(score):
         return '🟡 ควรทำเร็ว ๆ นี้'
     return '🟢 วางแผนล่วงหน้า'
 
+def render_calendar(tasks):
+    st.subheader('🗓️ ปฏิทินงานและกำหนดส่ง')
+    st.caption('แสดงวันกำหนดส่งของงานที่เพิ่มไว้ในระบบ')
+    today = date.today()
+    if 'calendar_year' not in st.session_state:
+        st.session_state.calendar_year = today.year
+    if 'calendar_month' not in st.session_state:
+        st.session_state.calendar_month = today.month
+    year = st.session_state.calendar_year
+    month = st.session_state.calendar_month
+    left, center, right = st.columns([1, 4, 1])
+    with left:
+        if st.button('◀ เดือนก่อน', use_container_width=True):
+            st.session_state.calendar_year = year - 1 if month == 1 else year
+            st.session_state.calendar_month = 12 if month == 1 else month - 1
+            st.rerun()
+    with center:
+        st.markdown(f'<h3 style="text-align:center">{calendar.month_name[month]} {year + 543}</h3>', unsafe_allow_html=True)
+    with right:
+        if st.button('เดือนถัดไป ▶', use_container_width=True):
+            st.session_state.calendar_year = year + 1 if month == 12 else year
+            st.session_state.calendar_month = 1 if month == 12 else month + 1
+            st.rerun()
+    day_names = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัส', 'ศุกร์', 'เสาร์', 'อาทิตย์']
+    headers = st.columns(7)
+    for col, label in zip(headers, day_names):
+        col.markdown(f'**{label}**')
+    by_date = {}
+    for task in tasks:
+        by_date.setdefault(task['due'], []).append(task)
+    for week in calendar.monthcalendar(year, month):
+        cols = st.columns(7)
+        for index, day in enumerate(week):
+            with cols[index]:
+                if day == 0:
+                    st.container(height=116, border=False)
+                    continue
+                current = date(year, month, day)
+                daily = by_date.get(current.isoformat(), [])
+                with st.container(height=116, border=True):
+                    st.markdown(f'**{day}**' + (' 🔵' if current == today else ''))
+                    for task in daily[:2]:
+                        marker = '✅' if task['done'] else ('🔴' if current < today else '🟡')
+                        st.caption(f"{marker} {task['subject']}: {task['name']}")
+                    if len(daily) > 2:
+                        st.caption(f'+ อีก {len(daily)-2} งาน')
+    st.divider()
+    chosen = st.date_input('เลือกวันที่เพื่อดูรายละเอียด', value=today, key='calendar_selected_date')
+    selected = by_date.get(chosen.isoformat(), [])
+    if not selected:
+        st.info('ไม่มีงานกำหนดส่งในวันที่เลือก')
+    for task in selected:
+        with st.container(border=True):
+            st.write(f"**{task['subject']} — {task['name']}**")
+            st.write(f"ความยาก {task['difficulty']}/5 · {task['hours']} ชั่วโมง · {priority_label(priority_score(task))}")
+            st.caption('สถานะ: ทำเสร็จแล้ว' if task['done'] else 'สถานะ: ยังไม่เสร็จ')
+    st.caption('หมายเหตุ: ปฏิทินนี้แสดงวันกำหนดส่ง ไม่ใช่ตารางแบ่งเวลาอ่านรายวัน')
+
 if 'tasks' not in st.session_state:
     st.session_state.tasks = load_tasks()
 tasks = st.session_state.tasks
 
 st.title('📚 Smart Study Planner')
 st.caption('ผู้ช่วยจัดการงานและจัดลำดับการอ่านหนังสือด้วย Python')
-page = st.sidebar.radio('เมนู', ['📊 Dashboard', '➕ เพิ่มงาน', '📋 จัดการงาน', '🗓️ แผนอ่านหนังสือ'])
+page = st.sidebar.radio('เมนู', ['📊 Dashboard', '➕ เพิ่มงาน', '📋 จัดการงาน', '🗓️ แผนอ่านหนังสือ', '📅 ปฏิทิน'])
 
 if page == '➕ เพิ่มงาน':
     st.subheader('เพิ่มงานใหม่')
@@ -111,3 +170,6 @@ elif page == '🗓️ แผนอ่านหนังสือ':
             remaining -= allocated
         st.caption(f'เวลาว่างที่ยังไม่ถูกจัดสรร: {remaining:g} ชั่วโมง')
         st.info('แผนนี้เป็นคำแนะนำเบื้องต้น ยังไม่บันทึกเวลาอ่านจริงหรือแบ่งงานข้ามวัน')
+
+elif page == '📅 ปฏิทิน':
+    render_calendar(tasks)
