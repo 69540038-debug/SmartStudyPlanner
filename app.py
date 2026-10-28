@@ -236,13 +236,13 @@ def theme_styles(dark):
     @media(max-width:640px) {{div[class*='st-key-new_task_launcher'] button p,div[class*='st-key-new_task_launcher'] button span {{font-size:1.13rem!important;}}}}
 
     /* Mobile-only layout improvements. Original colors, content and desktop layout remain unchanged. */
-    div[class*='st-key-mobile_calendar_picker'] {{display:none;}}
+    /* Native date picker stays available on all screen sizes. */
     @media (max-width: 700px) {{
       [data-testid='stMainBlockContainer'] {{padding:1rem .8rem 3rem!important;max-width:100%!important;}}
       [data-testid='stMain'] {{overflow-x:clip;}}
-      [data-testid='stHorizontalBlock'] {{flex-wrap:wrap!important;gap:.65rem!important;}}
-      [data-testid='stHorizontalBlock'] > [data-testid='stColumn'] {{flex:1 1 100%!important;width:100%!important;min-width:0!important;}}
-      [data-testid='stHorizontalBlock'] > [data-testid='stColumn'] > div {{min-width:0!important;}}
+      /* Keep calendar's seven day columns intact on small screens. */
+      /* Do not override Streamlit column widths globally. */
+
       div[class*='st-key-stat_'] button {{min-height:90px!important;}}
       .ssp-brand {{margin:4px 0 12px!important;}}
       .ssp-brand-name {{font-size:clamp(1.15rem,5.2vw,1.65rem)!important;overflow-wrap:anywhere;}}
@@ -261,7 +261,7 @@ def theme_styles(dark):
       [data-testid='stSegmentedControl'] {{max-width:100%;overflow-x:auto;}}
       [data-testid='stSegmentedControl'] button {{font-size:.82rem!important;}}
     }}
-    @media (min-width:701px) {{div[class*='st-key-mobile_calendar_picker'] {{display:none!important;}}}}
+    /* Desktop users can use either the date picker or the calendar grid. */
     </style>"""
 
 # คำคมเปลี่ยนเฉพาะเมื่อกลับมาหน้าหลัก ไม่เปลี่ยนทุกครั้งที่กดปุ่มในหน้าเดียวกัน
@@ -847,20 +847,31 @@ elif page == '📅 ปฏิทิน':
     for task in tasks:
         due_by_day.setdefault(task['due'], []).append(task)
     st.markdown('<div class="calendar-legend"><span class="calendar-pill study">● มิ้นต์: มีแผนอ่าน</span><span class="calendar-pill due">● ส้ม: วันกำหนดส่ง</span><span class="calendar-pill today">★ วันนี้</span></div>', unsafe_allow_html=True)
-    # มือถือใช้ตัวเลือกวันที่แทนตาราง 7 คอลัมน์ที่แคบเกินไป
+    # ตัวเลือกวันที่สำรอง ใช้ได้ทุกอุปกรณ์และซิงก์กับปุ่มในปฏิทิน
+    if 'selected_day' not in st.session_state:
+        st.session_state.selected_day = date.today().isoformat()
+
+    def choose_calendar_date(day_string):
+        st.session_state.selected_day = day_string
+        st.session_state.calendar_target_task = None
+        st.session_state.cal_month = date.fromisoformat(day_string).replace(day=1)
+
+    def choose_calendar_picker():
+        choose_calendar_date(st.session_state.calendar_date_picker.isoformat())
+
     with st.container(key='mobile_calendar_picker'):
-        st.markdown('#### 📱 เลือกวันที่เพื่อดูแผนอ่านและวันส่งงาน')
-        mobile_selected = st.date_input(
+        st.markdown('#### 📅 เลือกวันที่เพื่อดูรายละเอียด')
+        # ปรับค่าเฉพาะก่อนสร้าง widget เพื่อไม่ให้ Streamlit เกิด state conflict
+        current_date = date.fromisoformat(st.session_state.selected_day)
+        if st.session_state.get('calendar_date_picker') != current_date:
+            st.session_state.calendar_date_picker = current_date
+        st.date_input(
             'วันที่ต้องการดู',
-            value=date.fromisoformat(st.session_state.get('selected_day', date.today().isoformat())),
-            key='mobile_calendar_date',
+            key='calendar_date_picker',
             format='DD/MM/YYYY',
+            on_change=choose_calendar_picker,
         )
-        if mobile_selected.isoformat() != st.session_state.get('selected_day', date.today().isoformat()):
-            st.session_state.selected_day = mobile_selected.isoformat()
-            st.session_state.calendar_target_task = None
-            st.rerun()
-        st.caption('เลือกวันที่เพื่อดูแผนอ่านและงานที่กำหนดส่งในวันนั้น')
+        st.caption('หากกดวันที่บนตารางไม่ได้ สามารถเลือกวันที่จากช่องนี้ได้')
     with st.container(key='desktop_calendar_grid'):
         weekdays = [
             ('Monday', '#F3AF50', '#292F36'),
@@ -891,11 +902,9 @@ elif page == '📅 ปฏิทิน':
                         suffix += f' 📖{readable_time(hours_today)}'
                     if due_count:
                         suffix += f' 🟠{due_count}'
-                    if st.button(f'{day}{suffix}', key=f'cal_{key}' + ('-today' if key == date.today().isoformat() else ''), use_container_width=True,
-                        type='primary' if st.session_state.get('selected_day') == key else 'secondary'):
-                        st.session_state.selected_day = key
-                        st.session_state.calendar_target_task = None
-                        st.rerun()
+                    st.button(f'{day}{suffix}', key=f'cal_{key}' + ('-today' if key == date.today().isoformat() else ''), use_container_width=True,
+                        type='primary' if st.session_state.get('selected_day') == key else 'secondary',
+                        on_click=choose_calendar_date, args=(key,))
     chosen = st.session_state.get('selected_day', date.today().isoformat())
     selected = date.fromisoformat(chosen)
     st.markdown(f'#### 📖 รายละเอียดวันที่ {selected.strftime("%d/%m/%Y")}')
