@@ -216,6 +216,19 @@ def theme_styles(dark):
     .deadline-banner strong {{display:block;font-size:1.12rem;color:#292F36 !important;}}
     .deadline-banner span {{display:block;font-size:.86rem;color:#674D44 !important;margin-top:3px;}}
     .deadline-bell {{font-size:1.65rem;}}
+    /* Shared branded masthead across all pages; independent of task data. */
+    .ssp-brand {{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;gap:19px;padding:24px 27px;margin:6px 0 13px;border-radius:23px;background:linear-gradient(115deg,#153E63 0%,#226E8A 52%,#3DB6B0 100%);box-shadow:0 12px 28px #164D6B30;border:1px solid #92E9E180;}}
+    .ssp-brand:before {{content:'';position:absolute;z-index:-1;right:-52px;top:-105px;width:260px;height:260px;border:2px solid #FFFFFF26;border-radius:50%;box-shadow:0 0 0 38px #FFFFFF0C,0 0 0 82px #FFFFFF09;}}
+    .ssp-brand-mark {{width:63px;height:63px;flex:0 0 63px;border-radius:20px;display:grid;place-items:center;background:#FFFFFF25;border:1px solid #FFFFFF70;font-size:31px;box-shadow:0 5px 14px #082D3C25;animation:ssp-float 4s ease-in-out infinite;}}
+    .ssp-brand-copy {{min-width:0;}}
+    .ssp-brand-kicker {{color:#C5FFF1!important;font-size:.72rem;letter-spacing:.14em;font-weight:700;}}
+    .ssp-brand-name {{margin:2px 0 5px!important;color:#FFFFFF!important;font-family:'Prompt',sans-serif;font-size:clamp(1.5rem,3.2vw,2.6rem);line-height:1.23;font-weight:800;letter-spacing:-.035em;text-shadow:0 3px 10px #0A354B33;}}
+    .ssp-brand-sub {{color:#ECFFFC!important;font-size:clamp(.73rem,1.3vw,.91rem);line-height:1.6;}}
+    .ssp-brand-spark {{position:absolute;right:25px;bottom:14px;color:#FFF3AD;font-size:25px;animation:ssp-twinkle 3s ease-in-out infinite;}}
+    @keyframes ssp-float {{0%,100%{{transform:translateY(0)}}50%{{transform:translateY(-4px)}}}}
+    @keyframes ssp-twinkle {{0%,100%{{opacity:.5;transform:scale(.88)}}50%{{opacity:1;transform:scale(1.13)}}}}
+    @media(max-width:640px) {{.ssp-brand{{padding:17px 16px;gap:12px;border-radius:17px;}}.ssp-brand-mark{{width:46px;height:46px;flex-basis:46px;font-size:23px;border-radius:14px;}}.ssp-brand-spark{{right:10px;bottom:7px;font-size:17px;}}}}
+    @media(prefers-reduced-motion:reduce) {{.ssp-brand-mark,.ssp-brand-spark{{animation:none!important;}}}}
     </style>"""
 
 # คำคมเปลี่ยนเฉพาะเมื่อกลับมาหน้าหลัก ไม่เปลี่ยนทุกครั้งที่กดปุ่มในหน้าเดียวกัน
@@ -577,8 +590,17 @@ with header_right:
     st.toggle('🌙 โหมดมืด', key='theme_mode', help='เลื่อนสวิตช์เพื่อเปลี่ยนโหมดสว่างหรือมืด')
 st.markdown(theme_styles(st.session_state.theme_mode), unsafe_allow_html=True)
 with header_left:
-    st.title('✦ Smart Study Planner')
-st.caption('วางแผนการเรียน · ติดตามความคืบหน้า · จัดงานตามรายวิชา')
+    st.markdown('''
+    <header class="ssp-brand" aria-label="Smart Study Planner">
+      <div class="ssp-brand-mark" aria-hidden="true">📚</div>
+      <div class="ssp-brand-copy">
+        <div class="ssp-brand-kicker">✦ YOUR STUDY COMPANION</div>
+        <h1 class="ssp-brand-name">Smart Study Planner</h1>
+        <div class="ssp-brand-sub">วางแผนการเรียน · ติดตามความคืบหน้า · จัดงานตามรายวิชา</div>
+      </div>
+      <span class="ssp-brand-spark" aria-hidden="true">✦</span>
+    </header>
+    ''', unsafe_allow_html=True)
 st.info('🧪 เว็บไซต์นี้เป็นระบบทดลองเพื่อการศึกษา ยังไม่พัฒนาสำหรับใช้งานจริง ข้อมูลที่บันทึกอาจสูญหายเมื่อระบบรีสตาร์ต และผู้ใช้เว็บไซต์เดียวกันอาจเห็นข้อมูลร่วมกัน กรุณาอย่าใส่ข้อมูลส่วนตัวหรือข้อมูลสำคัญ')
 page = st.sidebar.radio('เมนู', ['🏠 หน้าหลัก', '📅 ปฏิทิน', '📘 คู่มือใช้งาน'], key='navigation')
 if 'quote_index' not in st.session_state:
